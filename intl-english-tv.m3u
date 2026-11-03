@@ -1,4 +1,4 @@
-#EXTM3U
+#EXTM3U url-tvg="https://raw.githubusercontent.com/sokahtemen/tv/epg/guide.xml.gz" x-tvg-url="https://raw.githubusercontent.com/sokahtemen/tv/epg/guide.xml.gz"
 #EXTINF:-1 tvg-name="NHK World-Japan" tvg-id="NHK.World.HD.uk" group-title="News",NHK World-Japan
 https://masterpl.hls.nhkworld.jp/hls/w/live/smarttv.m3u8
 #EXTINF:-1 tvg-name="CGTN" tvg-id="CGTN.sg" group-title="News",CGTN
