@@ -23,6 +23,12 @@ SOURCES = [
 # For local testing: EPG_SOURCES="a.xml.gz b.xml" python3 merge_epg.py
 if os.environ.get("EPG_SOURCES"):
     SOURCES = os.environ["EPG_SOURCES"].split()
+# Try extra guides for one run: EPG_EXTRA="url1 url2" (workflow input "extra")
+SOURCES += os.environ.get("EPG_EXTRA", "").split()
+
+
+def label(src):
+    return "/".join(src.rstrip("/").split("/")[-2:])
 
 
 def wanted_ids(path):
@@ -73,23 +79,24 @@ def main():
                             el.insert(i, d)
                         el.tail = "\n"
                         channels[cid] = ET.tostring(el, encoding="utf-8")
-                    if find and find.search(cid + " " + (el.findtext("display-name") or "")):
-                        found.setdefault(cid, 0)
+                    dname = el.findtext("display-name") or ""
+                    if find and find.search(cid + " " + dname):
+                        found.setdefault(cid, [0, dname])
                     el.clear()
                 elif el.tag == "programme":
-                    ch = el.get("channel")
+                    ch = el.get("channel") or ""
                     if ch in wanted:
                         el.tail = "\n"
                         programmes.append(ET.tostring(el, encoding="utf-8"))
                         n += 1
-                    if find and find.search(ch or ""):
-                        found[ch] = found.get(ch, 0) + 1
+                    if find and (ch in found or find.search(ch)):
+                        found.setdefault(ch, [0, ""])[0] += 1
                     el.clear()
-            print(f"OK   {src.rsplit('/', 1)[-1]}: {n} programmes kept")
-            for cid, cnt in sorted(found.items()):
-                print(f"     found: {cid}  ({cnt} programmes)")
+            print(f"OK   {label(src)}: {n} programmes kept")
+            for cid, (cnt, dname) in sorted(found.items()):
+                print(f"     found: {cid}  [{dname}]  ({cnt} programmes)")
         except Exception as e:  # one broken source must not kill the others
-            print(f"FAIL {src}: {e}")
+            print(f"FAIL {label(src)}: {e}")
 
     if not channels:
         sys.exit("No matching channels found in any source; keeping the old guide.")

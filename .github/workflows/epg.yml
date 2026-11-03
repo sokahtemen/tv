@@ -9,6 +9,10 @@ on:
         description: "Optional: list guide channel IDs matching this text (regex), e.g. africa|bloomberg"
         required: false
         default: ""
+      extra:
+        description: "Optional: extra guide URLs to try in this run (space-separated)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -22,6 +26,7 @@ jobs:
       - name: Merge guides
         env:
           EPG_FIND: ${{ inputs.find }}
+          EPG_EXTRA: ${{ inputs.extra }}
         run: python3 merge_epg.py
 
       - name: Publish to the epg branch
