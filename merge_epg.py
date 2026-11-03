@@ -19,8 +19,6 @@ SOURCES = [
     "https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_SG1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_HU1.xml.gz",
-    "https://epgshare01.online/epgshare01/epg_ripper_ID1.xml.gz",
-    "https://epgshare01.online/epgshare01/epg_ripper_DISTROTV1.xml.gz",
 ]
 # For local testing: EPG_SOURCES="a.xml.gz b.xml" python3 merge_epg.py
 if os.environ.get("EPG_SOURCES"):
