@@ -26,8 +26,17 @@ if os.environ.get("EPG_SOURCES"):
 
 
 def wanted_ids(path):
+    """Map each tvg-id in the playlist to the channel names that use it."""
+    ids = {}
     with open(path, encoding="utf-8") as f:
-        return {m.group(1) for m in re.finditer(r'tvg-id="([^"]+)"', f.read())}
+        for line in f:
+            m = re.search(r'tvg-id="([^"]+)"', line)
+            if line.startswith("#EXTINF") and m and "," in line:
+                name = re.sub(r"\s*\(alt\)$", "", line.rsplit(",", 1)[1].strip())
+                ids.setdefault(m.group(1), [])
+                if name not in ids[m.group(1)]:
+                    ids[m.group(1)].append(name)
+    return ids
 
 
 def fetch(src):
@@ -56,6 +65,12 @@ def main():
                 if el.tag == "channel":
                     cid = el.get("id")
                     if cid in wanted and cid not in channels:
+                        # Put the playlist's own channel names first, so players
+                        # that match the guide by name (not by tvg-id) also find it
+                        for i, name in enumerate(wanted[cid]):
+                            d = ET.Element("display-name", {"lang": "en"})
+                            d.text = name
+                            el.insert(i, d)
                         el.tail = "\n"
                         channels[cid] = ET.tostring(el, encoding="utf-8")
                     if find and find.search(cid + " " + (el.findtext("display-name") or "")):
@@ -88,7 +103,7 @@ def main():
         gz.write(b"</tv>\n")
 
     print(f"\nWrote {OUTPUT}: {len(channels)} channels, {len(programmes)} programmes")
-    missing = sorted(wanted - set(channels))
+    missing = sorted(set(wanted) - set(channels))
     if missing:
         print("No guide data for:", ", ".join(missing))
 
