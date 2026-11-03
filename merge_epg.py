@@ -47,25 +47,34 @@ def fetch(src):
 
 def main():
     wanted = wanted_ids(PLAYLIST)
+    # Optional search: EPG_FIND="africa|bloomberg" lists matching channel IDs per source
+    find = re.compile(os.environ["EPG_FIND"], re.I) if os.environ.get("EPG_FIND") else None
     channels, programmes = {}, []
     for src in SOURCES:
         try:
             stream = fetch(src)
-            n = 0
+            n, found = 0, {}
             for _, el in ET.iterparse(stream, events=("end",)):
                 if el.tag == "channel":
                     cid = el.get("id")
                     if cid in wanted and cid not in channels:
                         el.tail = "\n"
                         channels[cid] = ET.tostring(el, encoding="utf-8")
+                    if find and find.search(cid + " " + (el.findtext("display-name") or "")):
+                        found.setdefault(cid, 0)
                     el.clear()
                 elif el.tag == "programme":
-                    if el.get("channel") in wanted:
+                    ch = el.get("channel")
+                    if ch in wanted:
                         el.tail = "\n"
                         programmes.append(ET.tostring(el, encoding="utf-8"))
                         n += 1
+                    if find and find.search(ch or ""):
+                        found[ch] = found.get(ch, 0) + 1
                     el.clear()
             print(f"OK   {src.rsplit('/', 1)[-1]}: {n} programmes kept")
+            for cid, cnt in sorted(found.items()):
+                print(f"     found: {cid}  ({cnt} programmes)")
         except Exception as e:  # one broken source must not kill the others
             print(f"FAIL {src}: {e}")
 

@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "17 3 * * *"   # every day at 03:17 UTC
   workflow_dispatch:         # adds a "Run workflow" button
+    inputs:
+      find:
+        description: "Optional: list guide channel IDs matching this text (regex), e.g. africa|bloomberg"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -15,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Merge guides
+        env:
+          EPG_FIND: ${{ inputs.find }}
         run: python3 merge_epg.py
 
       - name: Publish to the epg branch
