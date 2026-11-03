@@ -19,7 +19,7 @@ https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8
 https://cdn-euronews.akamaized.net/live/eds/euronews-en/25002/index.m3u8
 #EXTINF:-1 tvg-name="WION" tvg-id="WION.sg" group-title="News",WION
 http://vg-zeefta.akamaized.net/ptnr-yupptv/title-wion/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/20c3c0d9-0256-43fe-bca6-70fdd490b957/main.m3u8
-#EXTINF:-1 tvg-name="Africanews English" tvg-id="AFRICANEWS.TV.id" group-title="News",Africanews English
+#EXTINF:-1 tvg-name="Africanews English" tvg-id="UK:.Africanews.be" group-title="News",Africanews English
 https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8
 #EXTINF:-1 tvg-name="Al Arabiya English" tvg-id="AlArabiyaEnglish.sa@SD" group-title="News",Al Arabiya English
 https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8
@@ -27,27 +27,27 @@ https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8
 https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8
 #EXTINF:-1 tvg-name="Bloomberg TV Europe" tvg-id="Bloomberg.HD.uk" group-title="Business",Bloomberg TV Europe
 https://bloomberg.com/media-manifest/streams/eu.m3u8
-#EXTINF:-1 tvg-name="Bloomberg Originals" tvg-id="Bloomberg.Originals.distro" group-title="Business",Bloomberg Originals
+#EXTINF:-1 tvg-name="Bloomberg Originals" tvg-id="UK:.Bloomberg.Originals.be" group-title="Business",Bloomberg Originals
 https://bloomberg.com/media-manifest/streams/qt.m3u8
 #EXTINF:-1 tvg-name="CGTN Documentary" tvg-id="CGTN-Documentary.sg" group-title="Documentary & Nature",CGTN Documentary
 https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8
-#EXTINF:-1 tvg-name="CNA Originals" tvg-id="CNAOriginals.sg@SD" group-title="Documentary & Nature",CNA Originals
+#EXTINF:-1 tvg-name="CNA Originals" tvg-id="UK:.CNA.Originals.be" group-title="Documentary & Nature",CNA Originals
 https://amg01082-cna-amg01082c1-vidaa-gb-7580.playouts.now.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="History Hit" tvg-id="HistoryHit.uk@SD" group-title="Documentary & Nature",History Hit
+#EXTINF:-1 tvg-name="History Hit" tvg-id="UK:.History.Hit.be" group-title="Documentary & Nature",History Hit
 https://lds-timeline-rakuten.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="Autentic History" tvg-id="AutenticHistory.de@SD" group-title="Documentary & Nature",Autentic History
+#EXTINF:-1 tvg-name="Autentic History" tvg-id="GB3200005SO" group-title="Documentary & Nature",Autentic History
 https://9e754fa707344ccca6d84955c8fcaf36.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AutenticHistory/playlist.m3u8
-#EXTINF:-1 tvg-name="Documentary+ International" tvg-id="DocumentaryPlus.us@International" group-title="Documentary & Nature",Documentary+ International
+#EXTINF:-1 tvg-name="Documentary+ International" tvg-id="64305451fc3be5947773c339-614e286b2bac097ffd6fd6ab" group-title="Documentary & Nature",Documentary+ International
 https://1d153317c8db4250b3789601274e2402.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-887-DOCUMENTARYINTERNATIONAL-DOCUMENTARYPLUS/mt/documentaryplus/887/hls/master/playlist.m3u8
-#EXTINF:-1 tvg-name="Wonder" tvg-id="Wonder.uk@SD" group-title="Documentary & Nature",Wonder
+#EXTINF:-1 tvg-name="Wonder" tvg-id="plex.tv.Wonder.plex" group-title="Documentary & Nature",Wonder
 https://lds-wonder-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-name="WildEarth" tvg-id="WildEarth.uk" group-title="Documentary & Nature",WildEarth
 https://dqga3jatxofgx.cloudfront.net/WildEarth.m3u8
-#EXTINF:-1 tvg-name="Terra Mater WILD English" tvg-id="TerraMaterWILD.de@English" group-title="Documentary & Nature",Terra Mater WILD English
+#EXTINF:-1 tvg-name="Terra Mater WILD English" tvg-id="6a19496db1a87d7ce78bd379" group-title="Documentary & Nature",Terra Mater WILD English
 https://amg01775-amg01775c1-amgplt0343.playout.now3.amagi.tv/playlist/amg01775-amg01775c1-amgplt0343/playlist.m3u8
-#EXTINF:-1 tvg-name="NatureTime" tvg-id="NatureTime.ca@SD" group-title="Documentary & Nature",NatureTime
+#EXTINF:-1 tvg-name="NatureTime" tvg-id="UK:.Nature.Time.be" group-title="Documentary & Nature",NatureTime
 https://bamusa-naturetime-emea-eng-rakuten.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="Adventure Earth" tvg-id="AdventureEarth.de@SD" group-title="Documentary & Nature",Adventure Earth
+#EXTINF:-1 tvg-name="Adventure Earth" tvg-id="UK:.Adventure.Earth.be" group-title="Documentary & Nature",Adventure Earth
 https://a57e9c69976649b582a8d7604c00e69a.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AdventureEarth/playlist.m3u8
 #EXTINF:-1 tvg-name="Euronews Magyar" tvg-id="Euronews.hu" group-title="Magyar",Euronews Magyar
 https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
