@@ -73,6 +73,11 @@ public class MtvaProxy {
     private static final Pattern PLAYLIST_ITEM = Pattern.compile("\\{[^{}]*\"file\"[^{}]*\\}");
     private static final Pattern URI_ATTR = Pattern.compile("URI=\"([^\"]*)\"");
 
+    /** The full playlist (all channels + guide address), served locally at /all.m3u. */
+    static final String MERGED = System.getProperty("mtva.merged",
+            "https://raw.githubusercontent.com/sokahtemen/tv/main/intl-english-tv.m3u");
+    private volatile String mergedCache;
+
     private final Map<String, Channel> byKey = new LinkedHashMap<String, Channel>();
     private final String playerUrl;
     private final Log log;
@@ -149,6 +154,8 @@ public class MtvaProxy {
 
             if (path.equals("/") || path.equals("/playlist.m3u")) {
                 sendText(out, 200, "audio/x-mpegurl; charset=utf-8", playlist(), head);
+            } else if (path.equals("/all.m3u")) {
+                sendText(out, 200, "audio/x-mpegurl; charset=utf-8", mergedPlaylist(), head);
             } else if (path.startsWith("/p/")) {
                 Channel ch = byKey.get(path.substring(3));
                 String url = queryParam(query, "u");
@@ -184,6 +191,19 @@ public class MtvaProxy {
                 sock.close();
             } catch (IOException ignored) {
             }
+        }
+    }
+
+    /** Latest full playlist from GitHub; the last good copy (or just the MTVA channels) if offline. */
+    private String mergedPlaylist() {
+        try {
+            String body = getText(MERGED, null);
+            if (!body.startsWith("#EXTM3U")) throw new IOException("not a playlist");
+            mergedCache = body;
+            return body;
+        } catch (IOException e) {
+            log.line("full playlist download failed: " + e.getMessage());
+            return mergedCache != null ? mergedCache : playlist();
         }
     }
 
@@ -485,6 +505,10 @@ public class MtvaProxy {
         if (args.length > 0 && args[0].equals("--selftest")) {
             // Plays each channel through the proxy like a player would: master, media playlist, newest segment
             proxy.start();
+            String all = fetchLocal("/all.m3u");
+            boolean hasMtva = all.contains("http://127.0.0.1:" + PORT + "/m1.m3u8");
+            System.out.println((hasMtva ? "OK   " : "FAIL ") + "/all.m3u: " + all.split("#EXTINF", -1).length
+                    + " lines with channels" + (hasMtva ? ", includes the MTVA channels" : ", MTVA channels missing"));
             for (Channel c : proxy.byKey.values()) {
                 try {
                     String master = fetchLocal("/" + c.key + ".m3u8");

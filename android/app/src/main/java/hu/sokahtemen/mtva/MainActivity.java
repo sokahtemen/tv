@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
 
     private void refresh() {
         text.setText("MTVA Proxy " + BuildConfigVersion.name(this) + "\n\n" + ProxyService.status
+                + "\n\nPlaylist for the player (all channels + guide):  http://127.0.0.1:" + MtvaProxy.PORT + "/all.m3u"
                 + "\n\nIt keeps running in the background and starts when the stick boots."
                 + " You can close this screen.\n\nRecent events:\n" + ProxyService.recentLog());
         handler.postDelayed(new Runnable() {
