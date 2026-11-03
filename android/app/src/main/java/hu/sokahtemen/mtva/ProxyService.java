@@ -18,6 +18,24 @@ public class ProxyService extends Service {
     private static final String CHANNEL_ID = "proxy";
     private static MtvaProxy proxy;
     static volatile String status = "Starting…";
+    private static final java.util.LinkedList<String> recent = new java.util.LinkedList<String>();
+
+    /** Last proxy events, newest first, shown in the app screen for troubleshooting. */
+    static String recentLog() {
+        synchronized (recent) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : recent) sb.append(s).append('\n');
+            return sb.length() == 0 ? "(nothing yet: start a Hungarian channel in the player)" : sb.toString();
+        }
+    }
+
+    private static void remember(String msg) {
+        String time = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(new java.util.Date());
+        synchronized (recent) {
+            recent.addFirst(time + "  " + msg);
+            while (recent.size() > 12) recent.removeLast();
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -44,6 +62,7 @@ public class ProxyService extends Service {
                 proxy = new MtvaProxy(new MtvaProxy.Log() {
                     public void line(String msg) {
                         Log.i(TAG, msg);
+                        remember(msg);
                     }
                 });
                 try {

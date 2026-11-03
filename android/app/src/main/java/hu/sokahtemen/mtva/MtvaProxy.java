@@ -174,6 +174,8 @@ public class MtvaProxy {
             }
         } catch (IOException ignored) {
             // player closed the connection
+        } catch (RuntimeException e) {
+            log.line("internal error: " + e);
         } finally {
             try {
                 sock.close();
@@ -199,6 +201,7 @@ public class MtvaProxy {
         try {
             code = c.getResponseCode();
         } catch (IOException e) {
+            log.line(ch.name + ": upstream error " + e);
             sendText(out, 502, "text/plain", "Upstream error: " + e.getMessage() + "\n", head);
             return;
         }
@@ -416,6 +419,37 @@ public class MtvaProxy {
         out.flush();
     }
 
+    // ---------------------------------------------------------------- self-test helpers
+
+    private static byte[] fetchLocalBytes(String path) throws IOException {
+        HttpURLConnection c = (HttpURLConnection) new URL("http://127.0.0.1:" + PORT + path).openConnection();
+        c.setReadTimeout(30000);
+        int code = c.getResponseCode();
+        if (code != 200) {
+            InputStream err = c.getErrorStream();
+            String msg = err == null ? "" : new String(readAll(err), "UTF-8").trim();
+            throw new IOException("HTTP " + code + " for " + path + " " + msg);
+        }
+        return readAll(c.getInputStream());
+    }
+
+    private static String fetchLocal(String path) throws IOException {
+        return new String(fetchLocalBytes(path), "UTF-8");
+    }
+
+    /** First (variants: highest listed first is fine) or last (segments: newest) URI line of a playlist. */
+    private static String lastUri(String playlist, boolean first) throws IOException {
+        String found = null;
+        for (String line : playlist.split("\n")) {
+            String t = line.trim();
+            if (t.length() == 0 || t.startsWith("#")) continue;
+            if (first) return t;
+            found = t;
+        }
+        if (found == null) throw new IOException("empty playlist:\n" + playlist);
+        return found;
+    }
+
     // ---------------------------------------------------------------- desktop entry point
 
     /** java MtvaProxy            run the proxy
@@ -427,6 +461,22 @@ public class MtvaProxy {
             }
         };
         MtvaProxy proxy = new MtvaProxy(stderr);
+        if (args.length > 0 && args[0].equals("--selftest")) {
+            // Plays each channel through the proxy like a player would: master, media playlist, newest segment
+            proxy.start();
+            for (Channel c : proxy.byKey.values()) {
+                try {
+                    String master = fetchLocal("/" + c.key + ".m3u8");
+                    String media = master.contains("#EXTINF") ? master : fetchLocal(lastUri(master, true));
+                    int bytes = fetchLocalBytes(lastUri(media, false)).length;
+                    System.out.println("OK   " + c.name + ": playlists + newest segment (" + bytes + " bytes)");
+                } catch (Exception e) {
+                    System.out.println("FAIL " + c.name + ": " + e.getMessage());
+                }
+            }
+            proxy.stop();
+            System.exit(0);
+        }
         if (args.length > 0 && args[0].equals("--resolve")) {
             for (Channel c : proxy.byKey.values()) {
                 try {

@@ -21,18 +21,17 @@ public class MainActivity extends Activity {
         text = new TextView(this);
         text.setTextColor(Color.WHITE);
         text.setBackgroundColor(Color.rgb(20, 24, 32));
-        text.setTextSize(22);
-        text.setGravity(Gravity.CENTER);
+        text.setTextSize(18);
+        text.setGravity(Gravity.CENTER_HORIZONTAL);
         text.setPadding(80, 60, 80, 60);
         setContentView(text);
         refresh();
     }
 
     private void refresh() {
-        text.setText("MTVA Proxy\n\n" + ProxyService.status
-                + "\n\nChannel list:  http://127.0.0.1:" + MtvaProxy.PORT + "/playlist.m3u"
-                + "\n\nThe proxy keeps running in the background and starts automatically"
-                + " when the stick boots. You can close this screen.");
+        text.setText("MTVA Proxy " + BuildConfigVersion.name(this) + "\n\n" + ProxyService.status
+                + "\n\nIt keeps running in the background and starts when the stick boots."
+                + " You can close this screen.\n\nRecent events:\n" + ProxyService.recentLog());
         handler.postDelayed(new Runnable() {
             public void run() {
                 refresh();
