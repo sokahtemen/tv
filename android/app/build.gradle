@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'hu.sokahtemen.mtva'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'hu.sokahtemen.mtva'
+        minSdk 26          // Xiaomi TV Stick (Android 9) and newer
+        targetSdk 34
+        // A higher number on every CI build lets new versions install over old ones
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int)
+        versionName "1.0.${System.getenv('GITHUB_RUN_NUMBER') ?: '0'}"
+    }
+
+    // Fixed key so updates install over the previous version (personal sideloaded app)
+    signingConfigs {
+        shared {
+            storeFile file('mtva.keystore')
+            storePassword 'android'
+            keyAlias 'mtva'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.shared
+        }
+        debug {
+            signingConfig signingConfigs.shared
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}

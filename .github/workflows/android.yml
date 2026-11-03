@@ -1,0 +1,49 @@
+name: Build Android app
+
+on:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      # The runner is outside Hungary, so MTVA may geo-block the stream itself;
+      # this checks that the page and player parsing still match MTVA's site.
+      - name: Check MTVA stream lookup
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/mtva
+          javac -d /tmp/mtva android/app/src/main/java/hu/sokahtemen/mtva/MtvaProxy.java
+          java -cp /tmp/mtva hu.sokahtemen.mtva.MtvaProxy --resolve
+
+      - name: Build APK
+        working-directory: android
+        run: gradle --no-daemon assembleRelease
+
+      - name: Publish download
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk mtva-proxy.apk
+          gh release delete mtva-proxy --yes --cleanup-tag || true
+          gh release create mtva-proxy mtva-proxy.apk \
+            --title "MTVA Proxy for Android TV" \
+            --notes "Build ${{ github.run_number }}. Install on the TV stick; see README."
