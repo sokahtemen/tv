@@ -38,12 +38,15 @@ public class MtvaProxy {
 
     public static final class Channel {
         public final String key, name, tvgId, page;
+        final String[] pages;          // MTVA pages with a player for this channel, tried in order
+        volatile String activePage;    // the one that worked last, sent as Referer
 
-        Channel(String key, String name, String tvgId, String page) {
+        Channel(String key, String name, String tvgId, String... pages) {
             this.key = key;
             this.name = name;
             this.tvgId = tvgId;
-            this.page = page;
+            this.page = pages[0];
+            this.pages = pages;
         }
     }
 
@@ -54,8 +57,8 @@ public class MtvaProxy {
     public static final List<Channel> CHANNELS = new ArrayList<Channel>();
 
     static {
-        CHANNELS.add(new Channel("m1", "M1", "m1.HD.hu", "https://www.mediaklikk.hu/m1-elo/"));
-        CHANNELS.add(new Channel("m2", "M2 / Petőfi TV", "m2.HD.hu", "https://www.mediaklikk.hu/m2-elo/"));
+        CHANNELS.add(new Channel("m1", "M1", "m1.HD.hu", "https://www.mediaklikk.hu/m1-elo/", "https://hirado.hu/elo/m1"));
+        CHANNELS.add(new Channel("m2", "M2 / Petőfi TV", "m2.HD.hu", "https://www.mediaklikk.hu/m2-elo/", "https://hirado.hu/elo/m2"));
         CHANNELS.add(new Channel("duna", "Duna", "Duna.TV.hu", "https://www.mediaklikk.hu/duna-elo/"));
         CHANNELS.add(new Channel("m4sport", "M4 Sport", "m4.hu", "https://m4sport.hu/elo/"));
         CHANNELS.add(new Channel("m5", "M5", "m5.hu", "https://www.mediaklikk.hu/m5-elo/"));
@@ -196,7 +199,7 @@ public class MtvaProxy {
 
     /** Fetches an upstream URL; playlists are rewritten to point back here, everything else is streamed. */
     private void forward(OutputStream out, Channel ch, String url, boolean head) throws IOException {
-        HttpURLConnection c = open(url, ch.page);
+        HttpURLConnection c = open(url, referer(ch));
         int code;
         try {
             code = c.getResponseCode();
@@ -269,9 +272,27 @@ public class MtvaProxy {
 
     /** Returns a fresh HLS master playlist URL for a channel, the way MTVA's web player gets it. */
     public String resolve(Channel ch) throws IOException {
-        String html = getText(ch.page, null);
+        IOException last = null;
+        for (String page : ch.pages) {
+            try {
+                String url = resolveFrom(page);
+                ch.activePage = page;
+                return url;
+            } catch (IOException e) {
+                last = e;
+            }
+        }
+        throw last;
+    }
+
+    static String referer(Channel ch) {
+        return ch.activePage != null ? ch.activePage : ch.page;
+    }
+
+    private String resolveFrom(String page) throws IOException {
+        String html = getText(page, null);
         Matcher m = LOAD_PLAYER.matcher(html);
-        if (!m.find()) throw new IOException("player data not found on " + ch.page);
+        if (!m.find()) throw new IOException("player data not found on " + page);
         String json = m.group(2);
 
         Map<String, String> params = new LinkedHashMap<String, String>();
@@ -296,7 +317,7 @@ public class MtvaProxy {
             q.append(q.length() == 0 ? "?" : "&").append(URLEncoder.encode(e.getKey(), "UTF-8"))
                     .append('=').append(URLEncoder.encode(e.getValue(), "UTF-8"));
         }
-        String player = getText(playerUrl + q, ch.page);
+        String player = getText(playerUrl + q, page);
         Matcher s = PL_SETUP.matcher(player);
         if (!s.find()) throw new IOException("stream list not found in MTVA player response");
 
@@ -481,7 +502,7 @@ public class MtvaProxy {
             for (Channel c : proxy.byKey.values()) {
                 try {
                     String url = proxy.resolve(c);
-                    HttpURLConnection conn = open(url, c.page);
+                    HttpURLConnection conn = open(url, referer(c));
                     System.out.println("OK   " + c.name + ": " + url + "  (playlist HTTP " + conn.getResponseCode() + ")");
                     conn.disconnect();
                 } catch (Exception e) {
