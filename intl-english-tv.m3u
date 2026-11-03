@@ -49,6 +49,18 @@ https://amg01775-amg01775c1-amgplt0343.playout.now3.amagi.tv/playlist/amg01775-a
 https://bamusa-naturetime-emea-eng-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-name="Adventure Earth" tvg-id="UK:.Adventure.Earth.be" group-title="Documentary & Nature",Adventure Earth
 https://a57e9c69976649b582a8d7604c00e69a.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AdventureEarth/playlist.m3u8
+#EXTINF:-1 tvg-name="M1" tvg-id="m1.HD.hu" group-title="Magyar közszolgálati",M1
+http://127.0.0.1:8088/m1.m3u8
+#EXTINF:-1 tvg-name="M2 / Petőfi TV" tvg-id="m2.HD.hu" group-title="Magyar közszolgálati",M2 / Petőfi TV
+http://127.0.0.1:8088/m2.m3u8
+#EXTINF:-1 tvg-name="Duna" tvg-id="Duna.TV.hu" group-title="Magyar közszolgálati",Duna
+http://127.0.0.1:8088/duna.m3u8
+#EXTINF:-1 tvg-name="M4 Sport" tvg-id="m4.hu" group-title="Magyar közszolgálati",M4 Sport
+http://127.0.0.1:8088/m4sport.m3u8
+#EXTINF:-1 tvg-name="M5" tvg-id="m5.hu" group-title="Magyar közszolgálati",M5
+http://127.0.0.1:8088/m5.m3u8
+#EXTINF:-1 tvg-name="Duna World / M4 Sport+" tvg-id="Duna.World.hu" group-title="Magyar közszolgálati",Duna World / M4 Sport+
+http://127.0.0.1:8088/dunaworld.m3u8
 #EXTINF:-1 tvg-name="Euronews Magyar" tvg-id="Euronews.hu" group-title="Magyar",Euronews Magyar
 https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
 #EXTINF:-1 tvg-name="ATV" tvg-id="ATV.hu" group-title="Magyar",ATV

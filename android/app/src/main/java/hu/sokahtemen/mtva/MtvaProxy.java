@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Local HTTP proxy that serves MTVA's live channels (M1, M2, Duna, M4 Sport, M5, Duna World)
+ * Local HTTP proxy that serves MTVA's live channels (M1, M2, Duna, M4 Sport, M5, Duna World / M4 Sport+)
  * as ordinary HLS, so any IPTV player can play them from http://127.0.0.1:8088/<channel>.m3u8.
  *
  * MTVA's stream addresses are short-lived, so each channel start fetches a fresh one from
@@ -58,9 +58,9 @@ public class MtvaProxy {
         CHANNELS.add(new Channel("m2", "M2 / Petőfi TV", "m2.HD.hu", "https://www.mediaklikk.hu/m2-elo/"));
         CHANNELS.add(new Channel("duna", "Duna", "Duna.TV.hu", "https://www.mediaklikk.hu/duna-elo/"));
         CHANNELS.add(new Channel("m4sport", "M4 Sport", "m4.hu", "https://m4sport.hu/elo/"));
-        CHANNELS.add(new Channel("m4sportplus", "M4 Sport+", "m4sport+.hu", "https://m4sport.hu/elo/?showchannel=mtv4plus"));
         CHANNELS.add(new Channel("m5", "M5", "m5.hu", "https://www.mediaklikk.hu/m5-elo/"));
-        CHANNELS.add(new Channel("dunaworld", "Duna World", "Duna.World.hu", "https://www.mediaklikk.hu/duna-world-elo/"));
+        // Duna World shares its channel with M4 Sport+ (weekend afternoons); one stream carries both
+        CHANNELS.add(new Channel("dunaworld", "Duna World / M4 Sport+", "Duna.World.hu", "https://m4sport.hu/elo/?showchannel=mtv4plus"));
     }
 
     private static final Pattern LOAD_PLAYER =

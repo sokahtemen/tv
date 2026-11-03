@@ -9,12 +9,22 @@ IPTV playlist with a merged daily TV guide.
 keeps only those channels and writes `guide.xml.gz`. The **Build EPG** workflow runs it every 6 hours
 and publishes the result to the `epg` branch. To add a channel to the guide, add it to the playlist with a matching `tvg-id`.
 
-## Hungarian public channels (M1, M2, Duna, M4 Sport, M4 Sport+, M5, Duna World)
+## Hungarian public channels (M1, M2, Duna, M4 Sport, M5, Duna World / M4 Sport+)
 
-MTVA's live streams use short-lived, geo-restricted addresses, so they can't be listed in the
-playlist directly. `mtva_proxy.py` runs on an always-on machine at home (in Hungary). For each channel
-request it lets [Streamlink](https://streamlink.github.io/) fetch a fresh stream from MTVA's own player
-and passes it on as plain MPEG-TS. Nothing is re-encoded, so a Raspberry Pi is enough.
+MTVA's live streams use short-lived addresses tied to the viewer's IP, so they can't be listed in the
+playlist directly. The **MTVA Proxy** Android TV app runs on the TV stick as a background service and
+serves them at fixed local addresses (`http://127.0.0.1:8088/m1.m3u8` etc.), which the playlist uses.
+For each channel start it gets a fresh stream from MTVA's own web player (like Streamlink's mediaklikk
+plugin) and passes the stream through unchanged.
+
+- Download: https://github.com/sokahtemen/tv/releases/download/mtva-proxy/mtva-proxy.apk
+- Install it on the stick (e.g. with the Downloader app), open **MTVA Proxy** once. It then runs in the
+  background and starts again after every reboot.
+- Source: `android/`. GitHub Actions builds the APK on every change and checks that the MTVA lookup still works.
+
+### On another machine instead (`mtva_proxy.py`)
+
+The same thing for a Linux/Windows box or a Raspberry Pi, using Streamlink:
 
 ```sh
 sudo pacman -S streamlink        # or: sudo apt install streamlink / pip install streamlink

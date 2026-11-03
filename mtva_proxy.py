@@ -28,9 +28,9 @@ CHANNELS = {
     "m2": ("M2 / Petőfi TV", "m2.HD.hu", "https://www.mediaklikk.hu/m2-elo/"),
     "duna": ("Duna", "Duna.TV.hu", "https://www.mediaklikk.hu/duna-elo/"),
     "m4sport": ("M4 Sport", "m4.hu", "https://m4sport.hu/elo/"),
-    "m4sportplus": ("M4 Sport+", "m4sport+.hu", "https://m4sport.hu/elo/?showchannel=mtv4plus"),
     "m5": ("M5", "m5.hu", "https://www.mediaklikk.hu/m5-elo/"),
-    "dunaworld": ("Duna World", "Duna.World.hu", "https://www.mediaklikk.hu/duna-world-elo/"),
+    # Duna World shares its channel with M4 Sport+ (weekend afternoons); one stream carries both
+    "dunaworld": ("Duna World / M4 Sport+", "Duna.World.hu", "https://m4sport.hu/elo/?showchannel=mtv4plus"),
 }
 
 STREAMLINK = ["streamlink"] if shutil.which("streamlink") else [sys.executable, "-m", "streamlink"]
