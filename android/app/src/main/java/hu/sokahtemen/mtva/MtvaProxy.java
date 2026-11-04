@@ -37,6 +37,9 @@ import java.util.regex.Pattern;
  * Playlists and segments then go through this proxy, which adds the headers MTVA's player sends.
  * Nothing is re-encoded.
  *
+ * Other streams that only need a Referer header (some local TV stations) can be played through
+ * it too: http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>, both URL-encoded.
+ *
  * Plain Java with no Android APIs, so it also runs and is tested on a desktop JVM.
  */
 public class MtvaProxy {
@@ -55,6 +58,7 @@ public class MtvaProxy {
         public final String key, name, tvgId;
         final String[] pages;            // MTVA pages with a player for this channel, tried in order
         volatile String referer;         // the page that worked last; MTVA's CDN expects it
+        final String linkSuffix;         // extra query for rewritten links (Referer of a plain stream)
 
         // Last lookup, guarded by this
         private String streamUrl;
@@ -68,6 +72,25 @@ public class MtvaProxy {
             this.tvgId = tvgId;
             this.pages = pages;
             this.referer = pages[0];
+            this.linkSuffix = "";
+        }
+
+        /** Any stream that just needs a Referer header: /p/_?u=<stream>&ref=<page> in a playlist. */
+        private Channel(String referer) throws IOException {
+            this.key = "_";
+            this.name = "Stream from " + hostOf(referer);
+            this.tvgId = "";
+            this.pages = new String[] {referer};
+            this.referer = referer;
+            this.linkSuffix = "&ref=" + URLEncoder.encode(referer, "UTF-8");
+        }
+    }
+
+    private static String hostOf(String url) {
+        try {
+            return new URL(url).getHost();
+        } catch (IOException e) {
+            return url;
         }
     }
 
@@ -199,8 +222,11 @@ public class MtvaProxy {
             } else if (path.equals("/all.m3u")) {
                 sendText(out, 200, "audio/x-mpegurl; charset=utf-8", mergedPlaylist(), head);
             } else if (path.startsWith("/p/")) {
-                Channel ch = byKey.get(path.substring(3));
+                String key = path.substring(3);
                 String url = queryParam(query, "u");
+                String ref = queryParam(query, "ref");
+                Channel ch = key.equals("_") && ref != null && ref.matches("(?i)https?://.+")
+                        ? new Channel(ref) : byKey.get(key);
                 if (ch == null || url == null || !url.matches("(?i)https?://.+")) {
                     sendText(out, 400, "text/plain", "Bad request\n", head);
                 } else {
@@ -348,7 +374,7 @@ public class MtvaProxy {
     }
 
     private static String proxied(Channel ch, String absoluteUrl) throws IOException {
-        return "/p/" + ch.key + "?u=" + URLEncoder.encode(absoluteUrl, "UTF-8");
+        return "/p/" + ch.key + "?u=" + URLEncoder.encode(absoluteUrl, "UTF-8") + ch.linkSuffix;
     }
 
     // ---------------------------------------------------------------- MTVA
@@ -674,6 +700,22 @@ public class MtvaProxy {
                             + first + " ms, restart " + again + " ms");
                 } catch (Exception e) {
                     System.out.println("FAIL " + c.name + ": " + e.getMessage());
+                }
+            }
+            // Referer streams listed in the full playlist (local stations), played the same way
+            String[] lines = all.split("\n");
+            for (int i = 1; i < lines.length; i++) {
+                String u = lines[i].trim();
+                if (!u.startsWith("http://127.0.0.1:" + PORT + "/p/_?")) continue;
+                String name = lines[i - 1].contains(",") ? lines[i - 1].substring(lines[i - 1].lastIndexOf(',') + 1) : u;
+                try {
+                    String path = u.substring(("http://127.0.0.1:" + PORT).length());
+                    String master = fetchLocal(path);
+                    String media = master.contains("#EXTINF") ? master : fetchLocal(firstUri(master));
+                    int bytes = fetchLocalBytes(lastUri(media)).length;
+                    System.out.println("OK   " + name + ": playlists + newest segment (" + bytes + " bytes)");
+                } catch (Exception e) {
+                    System.out.println("FAIL " + name + ": " + e.getMessage());
                 }
             }
             proxy.stop();

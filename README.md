@@ -64,3 +64,9 @@ time (default 45 minutes) and reports any interruption.
 
 **Actions → Find streams on a web page** searches TV station pages for stream addresses (.m3u8,
 YouTube, embedded players), to help add new channels.
+
+### Streams that need a Referer header
+
+Some local stations' streams only play when the request names their web player as Referer. The MTVA
+Proxy app passes such streams through with the header added:
+`http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>` (both URL-encoded). VTV Mohács uses this.
