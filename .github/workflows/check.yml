@@ -30,5 +30,6 @@ jobs:
           CHECK_URLS: ${{ inputs.urls }}
           CHECK_PLAYLIST: ${{ inputs.playlist }}
           CHECK_SHOW: ${{ inputs.show }}
+          CHECK_SHOW_MAX: "300000"
           CHECK_LOGOS: ${{ inputs.logos && '1' || '' }}
         run: python3 check_streams.py

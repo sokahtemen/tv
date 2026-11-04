@@ -89,7 +89,7 @@ def main():
     for url in os.environ.get("CHECK_SHOW", "").split():  # print a playlist as the server sends it
         try:
             final, body = get(url)
-            print(f"== {final}\n{body[:4000].decode('utf-8', 'replace')}\n")
+            print(f"== {final}\n{body[:int(os.environ.get("CHECK_SHOW_MAX", "4000"))].decode('utf-8', 'replace')}\n")
         except Exception as e:
             print(f"== {url}: {e}\n")
     if os.environ.get("CHECK_LOGOS"):
