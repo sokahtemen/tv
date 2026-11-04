@@ -1,0 +1,197 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="ReutersTV.us@SD" tvg-logo="" group-title="News",Reuters TV ##uk_samsung
+https://d5bxknkoxytmb.cloudfront.net/playlist/amg00453-reuters-reuters-samsunggb/playlist.m3u8
+#EXTINF:-1 tvg-id="ReutersTV.us@SD" tvg-logo="" group-title="News",Reuters TV ##uk_samsung
+https://amg00453-reuters-amg00453c1-samsung-gb-2113.playouts.now.amagi.tv/playlist/amg00453-reuters-reuters-samsunggb/playlist.m3u8
+#EXTINF:-1 tvg-id="ReutersTV.us@SD" tvg-logo="" group-title="News",Reuters TV ##us_xumo
+https://amg00453-reuters-amg00453c1-xumo-us-2073.playouts.now.amagi.tv/reuters-reuters-hls/playlist.m3u8
+#EXTINF:-1 tvg-id="NBCNewsNOW.us@SD" tvg-logo="" group-title="News",NBC News NOW ##uk_samsung
+https://d1si3n1st4nkgb.cloudfront.net/10502/88896001/hls/master.m3u8?ads.xumo_channelId=88896001
+#EXTINF:-1 tvg-id="NBCNewsNOW.us@SD" tvg-logo="" group-title="News",NBC News NOW ##us
+https://d1bl6tskrpq9ze.cloudfront.net/hls/master.m3u8?ads.xumo_channelId=99984003
+#EXTINF:-1 tvg-id="NBCNewsNOW.us@SD" tvg-logo="" group-title="News",NBC News NOW ##us_xumo
+https://xumo-drct-nbcnn-ir8ze.fast.nbcuni.com/live/master.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk
+https://amg01076-lightning-amg01076c7-lg-gb-2019.playouts.now.amagi.tv/playlist/amg01076-lightning-gbnews-lggb/playlist.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk
+https://live-gbnews-ssai-test.simplestreamcdn.com/v1/master/82267e84b9e5053b3fd0ade12cb1a146df74169a/gbnews-live-TEST/index.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk
+https://live-gbnews.simplestreamcdn.com/live5/gbnews/bitrate1.isml/manifest.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk
+https://live-gbnews.simplestreamcdn.com/s3/gbnews_subs/index.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk
+https://hlspackager.akamaized.net/live/DB/GB_NEWS/HLS/GB_NEWS.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk_rakuten
+https://rakutenaa-lightning-gbnews-rakuten-ccoa9.amagi.tv/playlist/rakutenAA-lightning-gbnews-rakuten/playlist.m3u8
+#EXTINF:-1 tvg-id="GBNews.uk@SD" tvg-logo="" group-title="News",GB News ##uk_samsung
+https://amg01076-lightningintern-gbnews-samsunguk-0lu52.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="News",CNN International ##uk_pluto
+https://jmp2.uk/plu-66dff9d46ad04d0008fda4de.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="News",CNN International ##uk_pluto
+https://jmp2.uk/plu-66c45afaa72e7b0008a2b153.m3u8
+#EXTINF:-1 tvg-id="CBSNews247.us@SD" tvg-logo="" group-title="News",CBS News 24/7 ##uk_pluto
+https://jmp2.uk/plu-6231eb3865be650007f59595.m3u8
+#EXTINF:-1 tvg-id="CBSNews247.us@SD" tvg-logo="" group-title="News",CBS News 24/7 ##us_pluto
+https://jmp2.uk/plu-5a6b92f6e22a617379789618.m3u8
+#EXTINF:-1 tvg-id="CNBCUK.uk@SD" tvg-logo="" group-title="Business",CNBC ##uk_samsung
+https://amg01079-nbcuuk-amg01079c2-samsung-gb-1258.playouts.now.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="BloombergTV.us@Plus" tvg-logo="" group-title="Business",Bloomberg TV+ ##uk_pluto
+https://jmp2.uk/plu-61559552dd585f0007321eca.m3u8
+#EXTINF:-1 tvg-id="BloombergTV.us@Plus" tvg-logo="" group-title="Business",Bloomberg TV+ ##uk_samsung
+https://d8975dc3.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/U2Ftc3VuZy1nYl9CbG9vbWJlcmdUVlBsdXNfSExT/playlist.m3u8
+#EXTINF:-1 tvg-id="ABCNews.au@Sydney" tvg-logo="" group-title="News",ABC News Australia ##au
+https://abc-news-dmd-streams-1.akamaized.net/out/v1/701126012d044971b3fa89406a440133/index.m3u8
+#EXTINF:-1 tvg-id="ABCNews.au@Sydney" tvg-logo="" group-title="News",ABC News Australia ##au
+https://c.mjh.nz/abc-news.m3u8
+#EXTINF:-1 tvg-id="TaiwanPlusTV.tw@SD" tvg-logo="" group-title="News",TaiwanPlus ##tw
+https://bcovlive-a.akamaihd.net/rce33d845cb9e42dfa302c7ac345f7858/ap-northeast-1/6282251407001/playlist.m3u8
+#EXTINF:-1 tvg-id="NDTV24x7.in@SD" tvg-logo="" group-title="News",NDTV 24x7 ##in
+https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678/ndtv24x7/master.m3u8
+#EXTINF:-1 tvg-id="ChannelsTV.ng@SD" tvg-logo="" group-title="News",Channels TV ##ng
+https://cs2.push2stream.com/CHANNELSTV-DVR/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Curiosity Now ##uk_rakuten
+https://amg00170-curiositystream-amg00170c3-rakuten-us-2289.playouts.now.amagi.tv/playlist/amg00170-curiositystreamllcfast-curiositynowrow-rakutenus/playlist.m3u8
+#EXTINF:-1 tvg-id="CuriosityNOW.de@EN" tvg-logo="" group-title="Documentary & Nature",Curiosity Now ##uk_samsung
+https://amg00170-amg00170c4-samsung-gb-4232.playouts.now.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Earth Touch ##uk_samsung
+https://amg01823-earthtouch-amg01823c1-samsung-gb-862.playouts.now.amagi.tv/playlist/amg01823-earthtouch-earthtouch-samsunggb/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Wild Planet ##uk_samsung
+https://d1h8whhtg5u7om.cloudfront.net/WildPlanet_GB.m3u8
+#EXTINF:-1 tvg-id="RealWild.uk@SD" tvg-logo="" group-title="Documentary & Nature",Real Wild ##uk_rakuten
+https://lds-realwild-rakuten.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="RealWild.uk@SD" tvg-logo="" group-title="Documentary & Nature",Real Wild ##uk_samsung
+https://lds-realwild-samsunguk.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",WaterBear ##uk_rakuten
+https://waterbear-waterbear-rakuten.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="WaterBear.ch@SD" tvg-logo="" group-title="Documentary & Nature",WaterBear ##uk_samsung
+https://amg01415-waterbearnetwor-waterbear-samsunguk-1h0y8.amagi.tv/playlist/amg01415-waterbearnetwor-waterbear-samsunguk/playlist.m3u8
+#EXTINF:-1 tvg-id="INWILD.nl@SD" tvg-logo="" group-title="Documentary & Nature",INWILD ##uk_samsung
+https://amg00861-terninternation-inwild-samsunguk-w5wic.amagi.tv/playlist/amg00861-terninternation-inwild-samsunguk/playlist.m3u8
+#EXTINF:-1 tvg-id="LoveThePlanet.es@EN" tvg-logo="" group-title="Documentary & Nature",Love the Planet ##uk_samsung
+https://amg01821-lovetvchannels-lovetheplanetuksamsung-samsunguk-apopw.amagi.tv/playlist/amg01821-lovetvchannels-lovetheplanetuksamsung-samsunguk/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Evolution Earth ##uk_samsung
+https://amg00276-amg00276c15-samsung-gb-3790.playouts.now.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="PBSNature.us@SD" tvg-logo="" group-title="Documentary & Nature",PBS Nature ##us_samsung
+https://d3mr43kyql7wgk.cloudfront.net/PBS_Nature.m3u8
+#EXTINF:-1 tvg-id="BBCEarth.uk@US" tvg-logo="" group-title="Documentary & Nature",BBC Earth ##us_samsung
+https://pb-zjy36qhp8e8cz.akamaized.net/BBC_Earth_US.m3u8
+#EXTINF:-1 tvg-id="BBCEarth.uk@US" tvg-logo="" group-title="Documentary & Nature",BBC Earth ##us_xumo
+https://amg00793-amg00793c6-xumo-us-2669.playouts.now.amagi.tv/BBCStudios-BBCEarthA-hls/playlist.m3u8
+#EXTINF:-1 tvg-id="LoveNature.ca@SD" tvg-logo="" group-title="Documentary & Nature",Love Nature ##us_pluto
+https://jmp2.uk/plu-66df8a29b25d2b0008fc5fe0.m3u8
+#EXTINF:-1 tvg-id="LoveNature.ca@4K" tvg-logo="" group-title="Documentary & Nature",Love Nature ##us_samsung
+https://pb-ehs1glsha1juy.akamaized.net/Love_Nature_4K.m3u8
+#EXTINF:-1 tvg-id="LoveNature.ca@SD" tvg-logo="" group-title="Documentary & Nature",Love Nature ##us_tubi
+https://aegis-cloudfront-1.tubi.video/6d6d0f24-8445-4b4c-bdf6-44f9e38beaa4/playlist.m3u8
+#EXTINF:-1 tvg-id="LoveNature.ca@SD" tvg-logo="" group-title="Documentary & Nature",Love Nature ##us_xumo
+https://amg01515-amg01515c26-xumo-us-4765.playouts.now.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="SpaceLivepoweredbysen.uk@SD" tvg-logo="" group-title="Documentary & Nature",Space Live ##uk
+https://linear-1224.frequency.stream/dist/lg-uk/1224/hls/master/playlist.m3u8
+#EXTINF:-1 tvg-id="SpaceLivepoweredbysen.uk@SD" tvg-logo="" group-title="Documentary & Nature",Space Live ##uk_samsung
+https://d111bsx9oooqoh.cloudfront.net/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Cosmic Frontiers ##uk_rakuten
+https://amg00376-magellan-amg00376c14-rakuten-uk-1694.playouts.now.amagi.tv/playlist/amg00376-magellantv-spacesciencenowcauk-rakutenuk/playlist.m3u8
+#EXTINF:-1 tvg-id="Mythbusters.us@UK" tvg-logo="" group-title="Documentary & Nature",Mythbusters ##uk_rakuten
+https://amg00627-amg00627c14-rakuten-uk-4802.playouts.now.amagi.tv/index.m3u8
+#EXTINF:-1 tvg-id="Mythbusters.us@UK" tvg-logo="" group-title="Documentary & Nature",Mythbusters ##uk_samsung
+https://d1cgf0ptrv4t22.cloudfront.net/Mythbusters_GB.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Modern Marvels ##uk_samsung
+https://e5fd8762.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/U2Ftc3VuZy1nYl9Nb2Rlcm5NYXJ2ZWxzX0hMUw/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Modern Marvels ##us_pluto
+https://jmp2.uk/plu-65775d29dfed030008cb3db2.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Modern Marvels ##us_samsung
+https://pb-m89wlp8flmjzf.akamaized.net/v1/aenetworks_modernmarvels_1/samsungheadend_us/latest/main/hls/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Mayday Air Disaster ##uk_pluto
+https://jmp2.uk/plu-6852811933a52de120f8b89d.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",Mayday Air Disaster ##uk_samsung
+https://d1vx4007e1im6x.cloudfront.net/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",World War TV ##uk_pluto
+https://jmp2.uk/plu-6319ee0cf78bb10007ee5e6b.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",World War TV ##uk_rakuten
+https://aenetworks-worldwartv-rakuten.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",World War TV ##uk_samsung
+https://amg00841-aenetworksukane-worldwartv-samsunguk-fiod1.amagi.tv/playlist/amg00841-aenetworksukane-worldwartv-samsunguk/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",History Hunters ##uk_rakuten
+https://amg00841-amg00841c7-rakuten-uk-2820.playouts.now.amagi.tv/playlist/amg00841-aeemeafast-historyhuntersrakuten-rakutenuk/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-logo="" group-title="Documentary & Nature",History Hunters ##uk_samsung
+https://amg00841-amg00841c9-samsung-gb-3032.playouts.now.amagi.tv/playlist/amg00841-aeemeafast-historyhunterssamsung-samsunggb/playlist.m3u8
+#EXTINF:-1 tvg-id="Getfactual.us@UK" tvg-logo="" group-title="Documentary & Nature",Get.Factual ##uk_samsung
+https://d1nhni5l2n8hjt.cloudfront.net/gf.m3u8
+#EXTINF:-1 tvg-id="AutenticTravel.de@SD" tvg-logo="" group-title="Documentary & Nature",Autentic Travel ##de
+https://cb0c87cc605942ff9766a4e6744bbadc.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AutenticTravel/playlist.m3u8
+#EXTINF:-1 tvg-id="AutenticTravel.de@SD" tvg-logo="" group-title="Documentary & Nature",Autentic Travel ##uk_samsung
+https://autentic-autentictravel-1-gb.samsung.wurl.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="INTRAVEL.nl@Philippines" tvg-logo="" group-title="Documentary & Nature",INTRAVEL ##uk_samsung
+https://amg00861-terncloud-amg00861c10-samsung-gb-2298.playouts.now.amagi.tv/playlist/amg00861-terninternationalfast-intravelsamsunguk-samsunggb/playlist.m3u8
+#EXTINF:-1 tvg-id="Tastemade.us@US" tvg-logo="" group-title="Documentary & Nature",Tastemade ##uk_rakuten
+https://rakutenaa-tm-intl-aus-rakuten-eu-n1gtg.amagi.tv/playlist/rakutenAA-tm-intl-aus-rakuten-eu/playlist.m3u8
+#EXTINF:-1 tvg-id="Tastemade.us@UK" tvg-logo="" group-title="Documentary & Nature",Tastemade ##uk_rakuten
+https://tastemade-tdint-rakuten.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-id="ATV.hu@SD" tvg-logo="" group-title="Magyar",ATV ##hu
+https://stream.atv.hu/atvlive/atvstream_2_aac/playlist.m3u8
+#EXTINF:-1 tvg-id="ATV.hu@SD" tvg-logo="" group-title="Magyar",ATV ##hu
+https://streamservers.atv.hu/atvlive/atvstream_1_aac/playlist.m3u8
+#EXTINF:-1 tvg-id="ATVSpirit.hu@SD" tvg-logo="" group-title="Magyar",ATV Spirit ##hu
+https://streamservers.atv.hu/atvliveedge/_definst_/atvstream_2_aac/playlist.m3u8
+#EXTINF:-1 tvg-id="ApostolTV.hu@SD" tvg-logo="" group-title="Magyar",Apostol TV ##hu
+https://live.apostoltv.hu/live/playlist.m3u8
+#EXTINF:-1 tvg-id="BudapestEuropaTelevizio.hu@SD" tvg-logo="" group-title="Magyar",Budapest Európa TV ##hu
+https://cloudfront44.lexanetwork.com:1344/freerelay/bpetv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="HtMusicChannel.hu@SD" tvg-logo="" group-title="Magyar",H!T Music Channel ##hu
+http://hitmusic.hu/hitmusic.m3u8
+#EXTINF:-1 tvg-id="OxygenMusic.hu@HD" tvg-logo="" group-title="Magyar",Oxygen Music ##hu
+https://oxygenmusic.hu:2443/hls/oxygenmusic.m3u8
+#EXTINF:-1 tvg-id="HangulatTV.hu@SD" tvg-logo="" group-title="Magyar",Hangulat TV ##hu
+https://iptv01.eurocable.co.hu/EC-HANGULATTV/index.m3u8
+#EXTINF:-1 tvg-id="16tvBudapest.hu@SD" tvg-logo="" group-title="Magyar",16tv Budapest ##hu
+https://cloudfront44.lexanetwork.com:1344/freerelay/16tv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="KomlosTV.hu@SD" tvg-logo="" group-title="Magyar",Komlós TV ##hu
+https://stream.streaming4u.hu/KomlosTV/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="CsurgoTV.hu@SD" tvg-logo="" group-title="Magyar",Csurgó TV ##hu
+https://cstv.medialivecdn.hu/csurgotv/27725804dc13aa23b3970414524d2dbf.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="CsurgoTV.hu@SD" tvg-logo="" group-title="Magyar",Csurgó TV ##hu
+http://79.120.178.90:1935/csurgotv/csurgolive/playlist.m3u8
+#EXTINF:-1 tvg-id="CsurgoTV.hu@SD" tvg-logo="" group-title="Magyar",Csurgó TV ##hu
+https://5cd03f21c7193.streamlock.net/csurgotv/csurgolive/playlist.m3u8
+#EXTINF:-1 tvg-id="BajaiTV.hu@SD" tvg-logo="" group-title="Magyar",Bajai TV ##hu
+https://cloudfront41.lexanetwork.com:1344/relay01/livestream002.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="DaruTV.hu@SD" tvg-logo="" group-title="Magyar",Daru TV ##hu
+https://5cd03f21c7193.streamlock.net/darutv/darutvlive/playlist.m3u8
+#EXTINF:-1 tvg-id="KiskorosTV.hu@SD" tvg-logo="" group-title="Magyar",Kiskőrös TV ##hu
+https://5cd03f21c7193.streamlock.net/kiskorostv/korostvlive/playlist.m3u8
+#EXTINF:-1 tvg-id="SoltvadkertiTelevizio.hu@SD" tvg-logo="" group-title="Magyar",Soltvadkerti TV ##hu
+http://79.120.178.90:1935/soltvadkerttv/soltvlive/playlist.m3u8
+#EXTINF:-1 tvg-id="FehervarTV.hu@SD" tvg-logo="" group-title="Magyar",Fehérvár TV ##hu
+https://cloudfront44.lexanetwork.com:1344/freerelay/fehervartv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="SzolnokTV.hu@SD" tvg-logo="" group-title="Magyar",Szolnok TV ##hu
+https://cloudfront44.lexanetwork.com:1344/relay01/livestream004.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="AlfoldTV.hu@SD" tvg-logo="" group-title="Magyar",Alföld TV ##hu
+https://cloudfront41.lexanetwork.com:1344/relay01/livestream006.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="BalatonTV.hu@SD" tvg-logo="" group-title="Magyar",Balaton TV ##hu
+https://stream.iptvservice.eu/hls/balatontv.m3u8
+#EXTINF:-1 tvg-id="HeviziTV.hu@SD" tvg-logo="" group-title="Magyar",Hévízi TV ##hu
+https://cloudfront44.lexanetwork.com:1344/relay03/livestream003.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="TVKeszthely.hu@SD" tvg-logo="" group-title="Magyar",TV Keszthely ##hu
+https://cloudfront44.lexanetwork.com:1344/freerelay/keszthelyivtv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="KanizsaTV.hu@SD" tvg-logo="" group-title="Magyar",Kanizsa TV ##hu
+https://cloudfront44.lexanetwork.com:1344/freerelay/kanizsavtv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="ZalaegerszegiTV.hu@SD" tvg-logo="" group-title="Magyar",Zalaegerszegi TV ##hu
+https://cloudfront44.lexanetwork.com:1344/freerelay/zegtv.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="TVEger.hu@SD" tvg-logo="" group-title="Magyar",TV Eger ##hu
+http://stream.tveger.hu:8010/live.m3u8
+#EXTINF:-1 tvg-id="GranTV.hu@SD" tvg-logo="" group-title="Magyar",Gran TV ##hu
+https://stream.medialive.hu/gran/grantvlive/playlist.m3u8
+#EXTINF:-1 tvg-id="TataiTV.hu@SD" tvg-logo="" group-title="Magyar",Tatai TV ##hu
+https://cloudfront44.lexanetwork.com:1344/relay01/broadcast006.sdp/playlist.m3u8
+#EXTINF:-1 tvg-id="BerenteTV.hu@SD" tvg-logo="" group-title="Magyar",Berente TV ##hu
+https://stream.streaming4u.hu/BerenteTV/index.m3u8
+#EXTINF:-1 tvg-id="VasarhelyiTelevizio.hu@SD" tvg-logo="" group-title="Magyar",Vásárhelyi TV ##hu
+https://stream.vasarhelyitelevizio.hu/stream/stream.m3u8
+#EXTINF:-1 tvg-id="MoraNetTV.hu@SD" tvg-logo="" group-title="Magyar",Móra-Net TV ##hu
+https://stream.moranettv.hu/live/index.m3u8
+#EXTINF:-1 tvg-id="VolgyhidTV.hu@SD" tvg-logo="" group-title="Magyar",Völgyhíd TV ##hu
+https://5cd03f21c7193.streamlock.net/volgyhidtv/mediakft/playlist.m3u8
+#EXTINF:-1 tvg-id="OrszaggyulesOGYTAB.hu@SD" tvg-logo="" group-title="Magyar",Országgyűlés (TAB) ##hu
+http://tab.parlament.hu:1935/edgelive/smil:mkogytab.smil/playlist.m3u8
+#EXTINF:-1 tvg-id="OrszaggyulesOGYTAB.hu@SD" tvg-logo="" group-title="Magyar",Országgyűlés (TAB) ##hu
+https://tab.parlament.hu:446/edgelive/smil:mkogytab.smil/playlist.m3u8
