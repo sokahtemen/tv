@@ -43,9 +43,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk mtva-proxy.apk
+          cp android/app/build/outputs/apk/release/app-release.apk a.apk
           # Replace the file in place, so the download link never disappears during an update
           gh release view mtva-proxy >/dev/null 2>&1 || gh release create mtva-proxy \
             --title "MTVA Proxy for Android TV" --notes "Install on the TV stick; see README."
-          gh release upload mtva-proxy mtva-proxy.apk --clobber
+          gh release upload mtva-proxy a.apk --clobber
+          gh release delete-asset mtva-proxy mtva-proxy.apk --yes 2>/dev/null || true  # old file name
           gh release edit mtva-proxy --notes "Build ${{ github.run_number }}. Install on the TV stick; see README."

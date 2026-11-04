@@ -17,7 +17,7 @@ serves them at fixed local addresses (`http://127.0.0.1:8088/m1.m3u8` etc.), whi
 For each channel start it gets a fresh stream from MTVA's own web player (like Streamlink's mediaklikk
 plugin) and passes the stream through unchanged.
 
-- Download: https://github.com/sokahtemen/tv/releases/download/mtva-proxy/mtva-proxy.apk
+- Download: https://github.com/sokahtemen/tv/releases/download/mtva-proxy/a.apk
 - Install it on the stick (e.g. with the Downloader app), open **MTVA Proxy** once. It then runs in the
   background and starts again after every reboot.
 - Source: `android/`. GitHub Actions builds the APK on every change and checks that the MTVA lookup still works.
