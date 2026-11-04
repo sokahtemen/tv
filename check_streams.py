@@ -52,9 +52,42 @@ def check(name, url):
         return f"FAIL {name}: {e}"
 
 
+def check_logos(lines):
+    """CHECK_LOGOS=1: checks that every tvg-logo address returns an image."""
+    import time
+    logos = sorted({m for l in lines for m in re.findall(r'tvg-logo="([^"]+)"', l)})
+    bad = 0
+    for url in logos:
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "tv-playlist-check/1.0 (github.com/sokahtemen/tv)"})
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    kind = r.headers.get("Content-Type", "")
+                    size = len(r.read(3_000_000))
+                ok = kind.startswith("image/") or url.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".svg"))
+                print(f"{'OK  ' if ok else 'FAIL'} logo {url} ({kind}, {size} bytes)")
+                bad += not ok
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and attempt < 2:
+                    time.sleep(10)
+                    continue
+                print(f"FAIL logo {url}: {e}")
+                bad += 1
+                break
+            except Exception as e:
+                print(f"FAIL logo {url}: {e}")
+                bad += 1
+                break
+        time.sleep(0.5)
+    print(f"\n{len(logos) - bad} logos OK, {bad} failed\n")
+
+
 def main():
     entries = []
     lines = open(os.environ.get("CHECK_PLAYLIST") or PLAYLIST, encoding="utf-8").read().splitlines()
+    if os.environ.get("CHECK_LOGOS"):
+        check_logos(lines)
     for i, line in enumerate(lines):
         if not line.startswith("#EXTINF"):
             continue

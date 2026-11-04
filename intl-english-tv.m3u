@@ -31,7 +31,7 @@ https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8
 http://127.0.0.1:8088/yt?u=https%3A%2F%2Fwww.youtube.com%2F%40SkyNews%2Flive
 #EXTINF:-1 tvg-logo="https://i.imgur.com/6eQ2nCJ.png" tvg-name="Reuters TV" tvg-id="GBBD4900001RG" group-title="News",Reuters TV
 https://amg00453-reuters-amg00453c1-samsung-gb-2113.playouts.now.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/CNN-International-Logo.svg/960px-CNN-International-Logo.svg.png" tvg-name="CNN International" tvg-id="CNN.International.(HD).sg" group-title="News",CNN International
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/CNN-International-Logo.svg/960px-CNN-International-Logo.svg.png" tvg-name="CNN International" tvg-id="CNN.International.(HD).sg" group-title="News",CNN International
 https://jmp2.uk/plu-66dff9d46ad04d0008fda4de.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/CBS_News_247_logo.svg/960px-CBS_News_247_logo.svg.png" tvg-name="CBS News 24/7" tvg-id="plex.tv.CBS.News.24/7.plex" group-title="News",CBS News 24/7
 https://jmp2.uk/plu-6231eb3865be650007f59595.m3u8
@@ -71,9 +71,9 @@ https://pb-zjy36qhp8e8cz.akamaized.net/BBC_Earth_US.m3u8
 https://d3mr43kyql7wgk.cloudfront.net/PBS_Nature.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/gJ9eMaG.png" tvg-name="Curiosity Now" tvg-id="UK:.Curiosity.Now.be" group-title="Documentary & Nature",Curiosity Now
 https://amg00170-amg00170c4-samsung-gb-4232.playouts.now.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="Earth Touch" tvg-id="GBBD3200001E2" group-title="Documentary & Nature",Earth Touch
+#EXTINF:-1 tvg-logo="https://tvpnlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/GBBD3200001E2_20250107T030638SQUARE.png" tvg-name="Earth Touch" tvg-id="GBBD3200001E2" group-title="Documentary & Nature",Earth Touch
 https://amg01823-earthtouch-amg01823c1-samsung-gb-862.playouts.now.amagi.tv/playlist/amg01823-earthtouch-earthtouch-samsunggb/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="Wild Planet" tvg-id="GBBB5000002PL" group-title="Documentary & Nature",Wild Planet
+#EXTINF:-1 tvg-logo="https://tvpnlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/GBBB5000002PL_20261026T042440SQUARE.png" tvg-name="Wild Planet" tvg-id="GBBB5000002PL" group-title="Documentary & Nature",Wild Planet
 https://d1h8whhtg5u7om.cloudfront.net/WildPlanet_GB.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/T9HHmAO.png" tvg-name="Real Wild" tvg-id="UK:.Real.Wild.be" group-title="Documentary & Nature",Real Wild
 https://lds-realwild-rakuten.amagi.tv/playlist.m3u8
@@ -83,21 +83,21 @@ https://waterbear-waterbear-rakuten.amagi.tv/playlist.m3u8
 https://amg00861-terninternation-inwild-samsunguk-w5wic.amagi.tv/playlist/amg00861-terninternation-inwild-samsunguk/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/RBcD49X.png" tvg-name="Love the Planet" tvg-id="GBBD500001F5" group-title="Documentary & Nature",Love the Planet
 https://amg01821-lovetvchannels-lovetheplanetuksamsung-samsunguk-apopw.amagi.tv/playlist/amg01821-lovetvchannels-lovetheplanetuksamsung-samsunguk/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="Evolution Earth" tvg-id="GB2700003KS" group-title="Documentary & Nature",Evolution Earth
+#EXTINF:-1 tvg-logo="https://tvpnlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/GB2700003KS_20250107T031117SQUARE.png" tvg-name="Evolution Earth" tvg-id="GB2700003KS" group-title="Documentary & Nature",Evolution Earth
 https://amg00276-amg00276c15-samsung-gb-3790.playouts.now.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://tvpnlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/GB3800007C5_20251209T004625SQUARE.png" tvg-name="Space Live" tvg-id="GB3800007C5" group-title="Documentary & Nature",Space Live
 https://d111bsx9oooqoh.cloudfront.net/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="Cosmic Frontiers" tvg-id="UK:.Cosmic.Frontiers.be" group-title="Documentary & Nature",Cosmic Frontiers
+#EXTINF:-1 tvg-logo="https://images-1.rakuten.tv/storage/global-live-channel/translation/artwork/2e1454aa-9ca0-40b6-81da-07ac1ac26964.jpeg" tvg-name="Cosmic Frontiers" tvg-id="UK:.Cosmic.Frontiers.be" group-title="Documentary & Nature",Cosmic Frontiers
 https://amg00376-magellan-amg00376c14-rakuten-uk-1694.playouts.now.amagi.tv/playlist/amg00376-magellantv-spacesciencenowcauk-rakutenuk/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="Modern Marvels" tvg-id="GB2700009R7" group-title="Documentary & Nature",Modern Marvels
+#EXTINF:-1 tvg-logo="https://tvpnlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/GB2700009R7_20250107T031150SQUARE.png" tvg-name="Modern Marvels" tvg-id="GB2700009R7" group-title="Documentary & Nature",Modern Marvels
 https://e5fd8762.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/U2Ftc3VuZy1nYl9Nb2Rlcm5NYXJ2ZWxzX0hMUw/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/wzzjvcH.png" tvg-name="Mythbusters" tvg-id="UK:.Mythbusters.be" group-title="Documentary & Nature",Mythbusters
 https://amg00627-amg00627c14-rakuten-uk-4802.playouts.now.amagi.tv/index.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="Mayday Air Disaster" tvg-id="GB28000063B" group-title="Documentary & Nature",Mayday Air Disaster
+#EXTINF:-1 tvg-logo="https://tvpnlogopeu.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/GB28000063B_20250811T172943SQUARE.png" tvg-name="Mayday Air Disaster" tvg-id="GB28000063B" group-title="Documentary & Nature",Mayday Air Disaster
 https://d1vx4007e1im6x.cloudfront.net/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="World War TV" tvg-id="UK:.World.War.TV.be" group-title="Documentary & Nature",World War TV
+#EXTINF:-1 tvg-logo="https://images-0.rakuten.tv/storage/global-live-channel/translation/artwork/f2cd9e72-274e-4ba5-b26d-01136e7d1c5a.jpeg" tvg-name="World War TV" tvg-id="UK:.World.War.TV.be" group-title="Documentary & Nature",World War TV
 https://aenetworks-worldwartv-rakuten.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-logo="" tvg-name="History Hunters" tvg-id="UK:.History.Hunters.be" group-title="Documentary & Nature",History Hunters
+#EXTINF:-1 tvg-logo="https://images-0.rakuten.tv/storage/global-live-channel/translation/artwork/d4879b34-baf5-4e9a-bd89-294645e60a75.jpeg" tvg-name="History Hunters" tvg-id="UK:.History.Hunters.be" group-title="Documentary & Nature",History Hunters
 https://amg00841-amg00841c7-rakuten-uk-2820.playouts.now.amagi.tv/playlist/amg00841-aeemeafast-historyhuntersrakuten-rakutenuk/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/4oVcjLd.png" tvg-name="Get.Factual" tvg-id="GB2700001R6" group-title="Documentary & Nature",Get.Factual
 https://d1nhni5l2n8hjt.cloudfront.net/gf.m3u8

@@ -85,6 +85,10 @@ def parse_source(src, wanted):
                     if FIND and FIND.search(cid + " " + dname):
                         res["found"].setdefault(cid, [0, dname])
                     if cid in wanted and cid not in res["channels"]:
+                        # Some guides list several logo URLs joined by "|"; players need one
+                        for icon in el.findall("icon"):
+                            if "|" in (icon.get("src") or ""):
+                                icon.set("src", icon.get("src").split("|")[0])
                         # The playlist's own names first, so players that match by name also find it
                         for i, name in enumerate(wanted[cid]):
                             d = ET.Element("display-name", {"lang": "en"})
