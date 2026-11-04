@@ -86,6 +86,12 @@ def check_logos(lines):
 def main():
     entries = []
     lines = open(os.environ.get("CHECK_PLAYLIST") or PLAYLIST, encoding="utf-8").read().splitlines()
+    for url in os.environ.get("CHECK_SHOW", "").split():  # print a playlist as the server sends it
+        try:
+            final, body = get(url)
+            print(f"== {final}\n{body[:4000].decode('utf-8', 'replace')}\n")
+        except Exception as e:
+            print(f"== {url}: {e}\n")
     if os.environ.get("CHECK_LOGOS"):
         check_logos(lines)
     for i, line in enumerate(lines):

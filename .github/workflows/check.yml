@@ -11,6 +11,10 @@ on:
         description: "Also check the channel logos"
         type: boolean
         default: false
+      show:
+        description: "Optional: print these playlists as the server sends them (space-separated)"
+        required: false
+        default: ""
       playlist:
         description: "Optional: playlist file in the repo to check instead of the main one"
         required: false
@@ -25,5 +29,6 @@ jobs:
         env:
           CHECK_URLS: ${{ inputs.urls }}
           CHECK_PLAYLIST: ${{ inputs.playlist }}
+          CHECK_SHOW: ${{ inputs.show }}
           CHECK_LOGOS: ${{ inputs.logos && '1' || '' }}
         run: python3 check_streams.py
