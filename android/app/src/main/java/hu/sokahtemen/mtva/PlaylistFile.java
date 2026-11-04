@@ -26,11 +26,26 @@ final class PlaylistFile {
     private PlaylistFile() {
     }
 
+    // One writer thread: writes never overlap, so an older list can't overwrite a newer one.
+    private static final java.util.concurrent.ExecutorService WRITER =
+            java.util.concurrent.Executors.newSingleThreadExecutor(new java.util.concurrent.ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "mtva-file");
+                    t.setDaemon(true);
+                    return t;
+                }
+            });
+    // Several quick changes (e.g. moving a channel step by step) are written once.
+    private static final java.util.concurrent.atomic.AtomicBoolean PENDING =
+            new java.util.concurrent.atomic.AtomicBoolean();
+
     /** Writes the file in the background. */
     static void saveAsync(final Context context) {
         final Context app = context.getApplicationContext();
-        Thread t = new Thread(new Runnable() {
+        if (!PENDING.compareAndSet(false, true)) return; // a write is already queued
+        WRITER.execute(new Runnable() {
             public void run() {
+                PENDING.set(false); // changes from now on queue another write
                 MtvaProxy p = ProxyService.current();
                 if (p == null) return;
                 try {
@@ -42,9 +57,7 @@ final class PlaylistFile {
                     Log.w("MtvaProxy", "playlist file", e);
                 }
             }
-        }, "mtva-file");
-        t.setDaemon(true);
-        t.start();
+        });
     }
 
     private static void write(Context context, String text) throws IOException {

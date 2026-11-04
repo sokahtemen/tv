@@ -4,7 +4,7 @@ https://masterpl.hls.nhkworld.jp/hls/w/live/smarttv.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/CGTN.svg/960px-CGTN.svg.png" tvg-name="CGTN" tvg-id="CGTN.sg" group-title="News",CGTN
 https://english-livebkali.cgtn.com/live/encgtn.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/TVRIWorld.png/960px-TVRIWorld.png" tvg-name="TVRI World" tvg-id="TVRIWorld.id@SD" group-title="News",TVRI World
-https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8
+http://127.0.0.1:8088/p/_?u=https%3A%2F%2Fott-balancer.tvri.go.id%2Flive%2Feds%2FTVRIWorld%2Fhls%2FTVRIWorld.m3u8&res=720,480
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Asu5pE9.png" tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="News",Arirang TV
 http://amdlive-ch01.ctnd.com.edgesuite.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/TRT_World.svg/960px-TRT_World.svg.png" tvg-name="TRT World" tvg-id="TRT.World.HD.uk" group-title="News",TRT World
@@ -103,8 +103,6 @@ https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
 https://stream.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/hbblRpZ.png" tvg-name="Országgyűlés (plenáris)" tvg-id="OrszaggyulesOGYplenaris.hu@SD" group-title="Magyar",Országgyűlés (plenáris)
 https://plenaris.parlament.hu:446/edgelive/smil:mkogyplen.smil/playlist.m3u8
-#EXTINF:-1 tvg-name="VTV Mohács" group-title="Magyar",VTV Mohács
-http://127.0.0.1:8088/p/_?u=https%3A%2F%2Fvtvmohacs.medialivecdn.hu%2Fvtvmohacs%2Fe7b867859b189ff088a43d41f948db06.sdp%2Fplaylist.m3u8&ref=https%3A%2F%2Fmedialive.hu%2Fplayer%2Fstart%2Fvtvmohacs.html
 #EXTINF:-1 tvg-logo="https://i.imgur.com/ZMrj2C5.png" tvg-name="Kapos TV" tvg-id="KaposTV.hu@SD" group-title="Magyar",Kapos TV
 https://cloudfront44.lexanetwork.com:1344/relay01/broadcast004.sdp/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/T8ueztB.png" tvg-name="TelePaks" tvg-id="Telepaks.hu" group-title="Magyar",TelePaks

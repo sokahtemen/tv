@@ -16,6 +16,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +42,7 @@ import java.util.regex.Pattern;
  *
  * Other streams that only need a Referer header (some local TV stations) can be played through
  * it too: http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>, both URL-encoded.
+ * Adding &res=720,480 keeps only those picture heights in the stream's quality list (ref is optional then).
  *
  * Plain Java with no Android APIs, so it also runs and is tested on a desktop JVM.
  */
@@ -96,6 +98,9 @@ public final class MtvaProxy {
             return new Channel("_", "Stream from " + hostOf(referer), "", "", referer,
                     "&ref=" + URLEncoder.encode(referer, "UTF-8"), false, STREAM_CACHE_MS, referer);
         }
+
+        /** Any other stream played through the proxy (e.g. to limit its qualities with &res=). */
+        static final Channel PASS = new Channel("_", "Stream", "", "", null, "", false, STREAM_CACHE_MS);
 
         /** A YouTube live stream; {@code link} must already be normalized. */
         static Channel youtube(String name, String link) {
@@ -309,13 +314,13 @@ public final class MtvaProxy {
                 String key = path.substring(3);
                 String url = queryParam(query, "u");
                 String ref = queryParam(query, "ref");
-                Channel ch = key.equals("_") && ref != null && ref.matches("(?i)https?://.+")
-                        ? Channel.withReferer(ref) : byKey.get(key);
+                Channel ch = !key.equals("_") ? byKey.get(key)
+                        : ref != null && ref.matches("(?i)https?://.+") ? Channel.withReferer(ref) : Channel.PASS;
                 if (ch == null) ch = adHoc.get(key);
                 if (ch == null || url == null || !url.matches("(?i)https?://.+")) {
                     sendText(out, 400, "text/plain", "Bad request\n", head);
                 } else {
-                    forward(out, ch, url, head, false);
+                    forward(out, ch, url, head, false, heights(queryParam(query, "res")));
                 }
             } else {
                 Channel ch = byKey.get(path.substring(1).replaceAll("\\.m3u8?$", ""));
@@ -528,6 +533,12 @@ public final class MtvaProxy {
      */
     private boolean forward(OutputStream out, Channel ch, String url, boolean head, boolean mayFail)
             throws IOException {
+        return forward(out, ch, url, head, mayFail, null);
+    }
+
+    /** @param keepHeights if not null, a quality list keeps only variants with these picture heights */
+    private boolean forward(OutputStream out, Channel ch, String url, boolean head, boolean mayFail,
+                            Set<Integer> keepHeights) throws IOException {
         HttpURLConnection c = open(url, ch.referer);
         int code;
         try {
@@ -556,6 +567,7 @@ public final class MtvaProxy {
             if (isPlaylist) {
                 String text = new String(readAll(body), "UTF-8");
                 drained = true;
+                if (keepHeights != null) text = keepVariants(text, keepHeights);
                 sendText(out, 200, "application/vnd.apple.mpegurl", rewrite(text, c.getURL(), ch), head);
             } else {
                 long len = c.getContentLengthLong();
@@ -575,6 +587,44 @@ public final class MtvaProxy {
             if (drained) closeQuietly(raw); // connection goes back to the keep-alive pool
             else c.disconnect();           // partly read (player left): drop it
         }
+    }
+
+    /** "720,480" -> {720, 480}; null if absent or unreadable. */
+    static Set<Integer> heights(String res) {
+        if (res == null) return null;
+        Set<Integer> out = new HashSet<Integer>();
+        for (String p : res.split("[,\\s]+")) {
+            if (p.matches("\\d{3,4}p?")) out.add(Integer.parseInt(p.replace("p", "")));
+        }
+        return out.isEmpty() ? null : out;
+    }
+
+    private static final Pattern RESOLUTION = Pattern.compile("RESOLUTION=\\d+x(\\d+)");
+
+    /**
+     * Drops the variants of a master playlist whose picture height isn't wanted. Leaves the playlist
+     * unchanged if it isn't a master playlist or if no variant would be left.
+     */
+    static String keepVariants(String text, Set<Integer> keep) {
+        if (!text.contains("#EXT-X-STREAM-INF")) return text;
+        StringBuilder sb = new StringBuilder(text.length());
+        String[] lines = text.split("\r?\n");
+        int kept = 0;
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            if (line.startsWith("#EXT-X-STREAM-INF")) {
+                Matcher m = RESOLUTION.matcher(line);
+                int j = i + 1;  // the variant's URI line (after any other tags)
+                while (j < lines.length && (lines[j].trim().isEmpty() || lines[j].startsWith("#"))) j++;
+                if (m.find() && !keep.contains(Integer.parseInt(m.group(1)))) {
+                    i = j;      // skip the tag and its URI
+                    continue;
+                }
+                kept++;
+            }
+            sb.append(line).append('\n');
+        }
+        return kept > 0 ? sb.toString() : text;
     }
 
     /** Points every URI in an HLS playlist back at this proxy (absolute, so relative paths keep working). */

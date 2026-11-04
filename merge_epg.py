@@ -7,6 +7,8 @@ Sources are streamed and parsed on the fly, so memory use stays small however bi
 If two sources have the same channel, the one listed first wins.
 """
 import gzip
+import io
+import json
 import os
 import re
 import sys
@@ -27,6 +29,8 @@ SOURCES = [
     "https://epgshare01.online/epgshare01/epg_ripper_RAKUTEN1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_PLEX1.xml.gz",
     "https://i.mjh.nz/SamsungTVPlus/gb.xml.gz",
+    # Channels no XMLTV guide has: built from the maxstream.tv schedule (Indonesia)
+    "maxstream:0_iu9ah7cu=TVRIWorld.id@SD",
 ]
 # For local testing: EPG_SOURCES="a.xml.gz b.xml" python3 merge_epg.py
 if os.environ.get("EPG_SOURCES"):
@@ -38,6 +42,8 @@ FIND = re.compile(os.environ["EPG_FIND"], re.I) if os.environ.get("EPG_FIND") el
 
 
 def label(src):
+    if src.startswith("maxstream:"):
+        return src
     return "/".join(src.rstrip("/").split("/")[-2:])
 
 
@@ -55,7 +61,39 @@ def wanted_ids(path):
     return ids
 
 
+def maxstream_guide(src):
+    """maxstream:<video id>=<tvg-id>: the maxstream.tv schedule API, turned into XMLTV."""
+    vid, _, cid = src[len("maxstream:"):].partition("=")
+    req = urllib.request.Request(f"https://vmp.maxstream.tv/api/v3/videos/{vid}/schedules",
+                                 headers={"User-Agent": "Mozilla/5.0"})
+    data = json.load(urllib.request.urlopen(req, timeout=60))
+    tv = ET.Element("tv")
+    seen = set()
+    for day in data.get("data") or []:
+        items = [m for m in day.get("metadata") or [] if m.get("parentId") == vid]
+        if items:  # times are UTC ("...Z")
+            print(f"     maxstream {day.get('date')}: {items[0]['startTime']} .. {items[-1]['endTime']}"
+                  f" ({len(items)} programmes)")
+        for m in items:
+            start, stop = m.get("startTime") or "", m.get("endTime") or ""
+            if not start or not stop or start in seen:
+                continue
+            seen.add(start)
+            fmt = lambda t: re.sub(r"[-:T]", "", t.rstrip("Z"))[:14] + " +0000"
+            p = ET.SubElement(tv, "programme", start=fmt(start), stop=fmt(stop), channel=cid)
+            ET.SubElement(p, "title", lang="en").text = m.get("tvProgram") or ""
+            if m.get("description"):
+                ET.SubElement(p, "desc", lang="en").text = m["description"]
+    ch = ET.Element("channel", id=cid)
+    ET.SubElement(ch, "display-name").text = cid
+    tv.insert(0, ch)
+    return ET.tostring(tv, encoding="utf-8")
+
+
 def open_source(src):
+    if src.startswith("maxstream:"):
+        raw = io.BufferedReader(io.BytesIO(maxstream_guide(src)))
+        return raw, raw
     """Returns (raw, stream): the guide as an XML byte stream, decompressed on the fly if gzipped."""
     if src.startswith(("http://", "https://")):
         req = urllib.request.Request(src, headers={"User-Agent": "epg-merge/1.0"})

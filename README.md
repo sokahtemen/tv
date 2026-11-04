@@ -67,9 +67,17 @@ YouTube, embedded players), to help add new channels.
 
 ### Streams that need a Referer header
 
-Some local stations' streams only play when the request names their web player as Referer. The MTVA
-Proxy app passes such streams through with the header added:
-`http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>` (both URL-encoded). VTV Mohács uses this.
+Some local stations' streams only play when the request names their web player as Referer. The TV
+Hub app passes such streams through with the header added:
+`http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>` (both URL-encoded).
+
+### Limiting a stream's qualities
+
+Adding `&res=720,480` to such an address keeps only those picture heights in the stream's quality list
+(`ref` is optional). TVRI World uses this, so the player can't pick its 240p, 360p or 1080p versions.
+
+TVRI World's guide comes from the maxstream.tv schedule (no XMLTV guide has the channel); the guide
+workflow converts it.
 
 ### YouTube live channels
 
