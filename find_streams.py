@@ -50,6 +50,19 @@ def scan(url, depth=0):
     if depth == 0:
         for f in iframes[:5]:
             scan(f, 1)
+        # Sites built with JavaScript often keep the player address in their own script files
+        host = urllib.parse.urlparse(final).netloc
+        scripts = [urllib.parse.urljoin(final, s) for s in re.findall(r"""<script[^>]+src=["']([^"']+)""", text, re.I)]
+        for s in [s for s in scripts if urllib.parse.urlparse(s).netloc == host][:15]:
+            try:
+                _, _, js = get(s)
+            except Exception:
+                continue
+            for m in re.finditer(PATTERNS["stream"] + "|" + PATTERNS["youtube"], js, re.I):
+                found = m.group(0).replace("\\/", "/")
+                if found not in seen:
+                    seen.add(found)
+                    print(f"  in script {s.rsplit('/', 1)[-1][:40]}: {found}")
 
 
 for u in os.environ.get("FIND_URLS", "").split():
