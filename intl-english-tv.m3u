@@ -27,10 +27,10 @@ https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8
 https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/LOGO_i24NEWS.png/960px-LOGO_i24NEWS.png" tvg-name="i24NEWS English" tvg-id="i24NEWS.ENGLISH.il" group-title="News",i24NEWS English
 https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8
-#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Sky_News_logo.svg/512px-Sky_News_logo.svg.png" tvg-name="Sky News" tvg-id="Sky.News.HD.uk" group-title="News",Sky News
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Sky_News_logo.svg/960px-Sky_News_logo.svg.png" tvg-name="Sky News" tvg-id="Sky.News.HD.uk" group-title="News",Sky News
 http://127.0.0.1:8088/yt?u=https%3A%2F%2Fwww.youtube.com%2F%40SkyNews%2Flive
 #EXTINF:-1 tvg-logo="https://i.imgur.com/6eQ2nCJ.png" tvg-name="Reuters TV" tvg-id="GBBD4900001RG" group-title="News",Reuters TV
-https://amg00453-reuters-amg00453c1-samsung-gb-2113.playouts.now.amagi.tv/playlist.m3u8
+https://d5bxknkoxytmb.cloudfront.net/playlist/amg00453-reuters-reuters-samsunggb/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/CNN-International-Logo.svg/960px-CNN-International-Logo.svg.png" tvg-name="CNN International" tvg-id="CNN.International.(HD).sg" group-title="News",CNN International
 https://jmp2.uk/plu-66dff9d46ad04d0008fda4de.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/CBS_News_247_logo.svg/960px-CBS_News_247_logo.svg.png" tvg-name="CBS News 24/7" tvg-id="plex.tv.CBS.News.24/7.plex" group-title="News",CBS News 24/7
@@ -161,8 +161,6 @@ https://cloudfront44.lexanetwork.com:1344/freerelay/keszthelyivtv.sdp/playlist.m
 https://cloudfront44.lexanetwork.com:1344/freerelay/kanizsavtv.sdp/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/MLVPf0i.png" tvg-name="Zalaegerszegi TV" tvg-id="ZalaegerszegiTV.hu@SD" group-title="Magyar",Zalaegerszegi TV
 https://cloudfront44.lexanetwork.com:1344/freerelay/zegtv.sdp/playlist.m3u8
-#EXTINF:-1 tvg-logo="https://www.fehervartv.hu/css/img/icon-1-2.png" tvg-name="Fehérvár TV" tvg-id="FehervarTV.hu@SD" group-title="Magyar",Fehérvár TV
-https://cloudfront44.lexanetwork.com:1344/freerelay/fehervartv.sdp/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/skXYntc.png" tvg-name="Tatai TV" tvg-id="TataiTV.hu@SD" group-title="Magyar",Tatai TV
 https://cloudfront44.lexanetwork.com:1344/relay01/broadcast006.sdp/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.ibb.co/qJN7Qh2/gran-kicsi.png" tvg-name="Gran TV" tvg-id="GranTV.hu@SD" group-title="Magyar",Gran TV
@@ -197,7 +195,5 @@ https://amg01644-amg01644c1-amgplt0343.playout.now3.amagi.tv/ts-eu-w1-n2/playlis
 https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_5000.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/7bRVpnu.png" tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="Backups",Al Jazeera English (alt)
 https://live-hls-apps-aje-v3-fa.getaj.net/AJE/index.m3u8
-#EXTINF:-1 tvg-logo="https://i.imgur.com/iD5tCjX.png" tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Backups",Pannon RTV (alt)
-https://stream2.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/BBC_News_2022_%28Alt%29.svg/500px-BBC_News_2022_%28Alt%29.svg.png" tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="Backups",BBC News (alt)
 https://vs-cmaf-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/hevc_iptv_mse_v0.mpd
