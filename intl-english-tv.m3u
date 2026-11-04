@@ -1,91 +1,91 @@
 #EXTM3U url-tvg="https://raw.githubusercontent.com/sokahtemen/tv/epg/guide.xml.gz" x-tvg-url="https://raw.githubusercontent.com/sokahtemen/tv/epg/guide.xml.gz"
-#EXTINF:-1 tvg-name="NHK World-Japan" tvg-id="NHK.World.HD.uk" group-title="News",NHK World-Japan
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Mhw1Ihk.png" tvg-name="NHK World-Japan" tvg-id="NHK.World.HD.uk" group-title="News",NHK World-Japan
 https://masterpl.hls.nhkworld.jp/hls/w/live/smarttv.m3u8
-#EXTINF:-1 tvg-name="CGTN" tvg-id="CGTN.sg" group-title="News",CGTN
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/CGTN.svg/960px-CGTN.svg.png" tvg-name="CGTN" tvg-id="CGTN.sg" group-title="News",CGTN
 https://english-livebkali.cgtn.com/live/encgtn.m3u8
-#EXTINF:-1 tvg-name="TVRI World" tvg-id="TVRIWorld.id@SD" group-title="News",TVRI World
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/TVRIWorld.png/960px-TVRIWorld.png" tvg-name="TVRI World" tvg-id="TVRIWorld.id@SD" group-title="News",TVRI World
 https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8
-#EXTINF:-1 tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="News",Arirang TV
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Asu5pE9.png" tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="News",Arirang TV
 http://amdlive-ch01.ctnd.com.edgesuite.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8
-#EXTINF:-1 tvg-name="TRT World" tvg-id="TRT.World.HD.uk" group-title="News",TRT World
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/TRT_World.svg/960px-TRT_World.svg.png" tvg-name="TRT World" tvg-id="TRT.World.HD.uk" group-title="News",TRT World
 https://tv-trtworld.medya.trt.com.tr/master.m3u8
-#EXTINF:-1 tvg-name="DW English" tvg-id="Deutsche.Welle.(English).sg" group-title="News",DW English
+#EXTINF:-1 tvg-logo="https://i.imgur.com/8MRNFb9.png" tvg-name="DW English" tvg-id="Deutsche.Welle.(English).sg" group-title="News",DW English
 https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8
-#EXTINF:-1 tvg-name="France 24 English" tvg-id="FRANCE.24.HD.uk" group-title="News",France 24 English
+#EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_FRANCE_24/images/LOGO_HD/image.png" tvg-name="France 24 English" tvg-id="FRANCE.24.HD.uk" group-title="News",France 24 English
 https://live.france24.com/hls/live/2037218/F24_EN_HI_HLS/master_5000.m3u8
-#EXTINF:-1 tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="News",BBC News
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/BBC_News_2022_%28Alt%29.svg/500px-BBC_News_2022_%28Alt%29.svg.png" tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="News",BBC News
 https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8
-#EXTINF:-1 tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="News",Al Jazeera English
+#EXTINF:-1 tvg-logo="https://i.imgur.com/7bRVpnu.png" tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="News",Al Jazeera English
 https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8
-#EXTINF:-1 tvg-name="Euronews English" tvg-id="Euronews.uk" group-title="News",Euronews English
+#EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Euro_News.png" tvg-name="Euronews English" tvg-id="Euronews.uk" group-title="News",Euronews English
 https://cdn-euronews.akamaized.net/live/eds/euronews-en/25002/index.m3u8
-#EXTINF:-1 tvg-name="WION" tvg-id="WION.sg" group-title="News",WION
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Wc5Z3iS.png" tvg-name="WION" tvg-id="WION.sg" group-title="News",WION
 http://vg-zeefta.akamaized.net/ptnr-yupptv/title-wion/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/20c3c0d9-0256-43fe-bca6-70fdd490b957/main.m3u8
-#EXTINF:-1 tvg-name="Africanews English" tvg-id="UK:.Africanews.be" group-title="News",Africanews English
+#EXTINF:-1 tvg-logo="https://i.imgur.com/5UxU4zc.png" tvg-name="Africanews English" tvg-id="UK:.Africanews.be" group-title="News",Africanews English
 https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8
-#EXTINF:-1 tvg-name="Al Arabiya English" tvg-id="AlArabiyaEnglish.sa@SD" group-title="News",Al Arabiya English
+#EXTINF:-1 tvg-logo="https://shahid.mbc.net/mediaObject/7cfc0baf-1201-477f-b722-d3099fafe17f?height=230&width=512&croppingPoint=&version=1&type=png" tvg-name="Al Arabiya English" tvg-id="AlArabiyaEnglish.sa@SD" group-title="News",Al Arabiya English
 https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8
-#EXTINF:-1 tvg-name="i24NEWS English" tvg-id="i24NEWS.ENGLISH.il" group-title="News",i24NEWS English
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/LOGO_i24NEWS.png/960px-LOGO_i24NEWS.png" tvg-name="i24NEWS English" tvg-id="i24NEWS.ENGLISH.il" group-title="News",i24NEWS English
 https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8
-#EXTINF:-1 tvg-name="Bloomberg TV Europe" tvg-id="Bloomberg.HD.uk" group-title="Business",Bloomberg TV Europe
+#EXTINF:-1 tvg-logo="https://i.imgur.com/OuogLHx.png" tvg-name="Bloomberg TV Europe" tvg-id="Bloomberg.HD.uk" group-title="Business",Bloomberg TV Europe
 https://bloomberg.com/media-manifest/streams/eu.m3u8
-#EXTINF:-1 tvg-name="Bloomberg Originals" tvg-id="UK:.Bloomberg.Originals.be" group-title="Business",Bloomberg Originals
+#EXTINF:-1 tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Bloomberg_Originals.png" tvg-name="Bloomberg Originals" tvg-id="UK:.Bloomberg.Originals.be" group-title="Business",Bloomberg Originals
 https://bloomberg.com/media-manifest/streams/qt.m3u8
-#EXTINF:-1 tvg-name="CGTN Documentary" tvg-id="CGTN-Documentary.sg" group-title="Documentary & Nature",CGTN Documentary
+#EXTINF:-1 tvg-logo="https://i.imgur.com/JHv0WxM.png" tvg-name="CGTN Documentary" tvg-id="CGTN-Documentary.sg" group-title="Documentary & Nature",CGTN Documentary
 https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8
-#EXTINF:-1 tvg-name="CNA Originals" tvg-id="UK:.CNA.Originals.be" group-title="Documentary & Nature",CNA Originals
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/CNA_new_logo.svg/500px-CNA_new_logo.svg.png" tvg-name="CNA Originals" tvg-id="UK:.CNA.Originals.be" group-title="Documentary & Nature",CNA Originals
 https://amg01082-cna-amg01082c1-vidaa-gb-7580.playouts.now.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="History Hit" tvg-id="UK:.History.Hit.be" group-title="Documentary & Nature",History Hit
+#EXTINF:-1 tvg-logo="https://i.imgur.com/ulHoqlP.png" tvg-name="History Hit" tvg-id="UK:.History.Hit.be" group-title="Documentary & Nature",History Hit
 https://lds-timeline-rakuten.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="Autentic History" tvg-id="GB3200005SO" group-title="Documentary & Nature",Autentic History
+#EXTINF:-1 tvg-logo="https://d3b6luslimvglo.cloudfront.net/images/79/rlaxximages/channels-rescaled/icon-white/autentichistory_white.png" tvg-name="Autentic History" tvg-id="GB3200005SO" group-title="Documentary & Nature",Autentic History
 https://9e754fa707344ccca6d84955c8fcaf36.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AutenticHistory/playlist.m3u8
-#EXTINF:-1 tvg-name="Wonder" tvg-id="plex.tv.Wonder.plex" group-title="Documentary & Nature",Wonder
+#EXTINF:-1 tvg-logo="https://i.imgur.com/LquGNbh.png" tvg-name="Wonder" tvg-id="plex.tv.Wonder.plex" group-title="Documentary & Nature",Wonder
 https://lds-wonder-rakuten.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="WildEarth" tvg-id="WildEarth.uk" group-title="Documentary & Nature",WildEarth
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Vhv5gjN.png" tvg-name="WildEarth" tvg-id="WildEarth.uk" group-title="Documentary & Nature",WildEarth
 https://dqga3jatxofgx.cloudfront.net/WildEarth.m3u8
-#EXTINF:-1 tvg-name="NatureTime" tvg-id="UK:.Nature.Time.be" group-title="Documentary & Nature",NatureTime
+#EXTINF:-1 tvg-logo="https://i.imgur.com/72JmyjM.png" tvg-name="NatureTime" tvg-id="UK:.Nature.Time.be" group-title="Documentary & Nature",NatureTime
 https://bamusa-naturetime-emea-eng-rakuten.amagi.tv/playlist.m3u8
-#EXTINF:-1 tvg-name="Adventure Earth" tvg-id="UK:.Adventure.Earth.be" group-title="Documentary & Nature",Adventure Earth
+#EXTINF:-1 tvg-logo="https://d3b6luslimvglo.cloudfront.net/images/79/rlaxximages/channels-rescaled/icon-white/adventureearth_white.png" tvg-name="Adventure Earth" tvg-id="UK:.Adventure.Earth.be" group-title="Documentary & Nature",Adventure Earth
 https://a57e9c69976649b582a8d7604c00e69a.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AdventureEarth/playlist.m3u8
-#EXTINF:-1 tvg-name="M1" tvg-id="m1.HD.hu" group-title="Magyar közszolgálati",M1
+#EXTINF:-1 tvg-logo="https://i.imgur.com/r4tgKZK.png" tvg-name="M1" tvg-id="m1.HD.hu" group-title="Magyar közszolgálati",M1
 http://127.0.0.1:8088/m1.m3u8
-#EXTINF:-1 tvg-name="M2 / Petőfi TV" tvg-id="m2.HD.hu" group-title="Magyar közszolgálati",M2 / Petőfi TV
+#EXTINF:-1 tvg-logo="https://i.imgur.com/B0nYT0l.png" tvg-name="M2 / Petőfi TV" tvg-id="m2.HD.hu" group-title="Magyar közszolgálati",M2 / Petőfi TV
 http://127.0.0.1:8088/m2.m3u8
-#EXTINF:-1 tvg-name="Duna" tvg-id="Duna.TV.hu" group-title="Magyar közszolgálati",Duna
+#EXTINF:-1 tvg-logo="https://i.imgur.com/oPbsSlp.png" tvg-name="Duna" tvg-id="Duna.TV.hu" group-title="Magyar közszolgálati",Duna
 http://127.0.0.1:8088/duna.m3u8
-#EXTINF:-1 tvg-name="M4 Sport" tvg-id="m4.hu" group-title="Magyar közszolgálati",M4 Sport
+#EXTINF:-1 tvg-logo="https://i.imgur.com/TQ4uJZk.png" tvg-name="M4 Sport" tvg-id="m4.hu" group-title="Magyar közszolgálati",M4 Sport
 http://127.0.0.1:8088/m4sport.m3u8
-#EXTINF:-1 tvg-name="M5" tvg-id="m5.hu" group-title="Magyar közszolgálati",M5
+#EXTINF:-1 tvg-logo="https://i.imgur.com/y21wFd0.png" tvg-name="M5" tvg-id="m5.hu" group-title="Magyar közszolgálati",M5
 http://127.0.0.1:8088/m5.m3u8
-#EXTINF:-1 tvg-name="Duna World / M4 Sport+" tvg-id="Duna.World.hu" group-title="Magyar közszolgálati",Duna World / M4 Sport+
+#EXTINF:-1 tvg-logo="https://i.imgur.com/uOBQJZS.png" tvg-name="Duna World / M4 Sport+" tvg-id="Duna.World.hu" group-title="Magyar közszolgálati",Duna World / M4 Sport+
 http://127.0.0.1:8088/dunaworld.m3u8
-#EXTINF:-1 tvg-name="Euronews Magyar" tvg-id="Euronews.hu" group-title="Magyar",Euronews Magyar
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/7/7e/Euronews._2016_logo.png" tvg-name="Euronews Magyar" tvg-id="Euronews.hu" group-title="Magyar",Euronews Magyar
 https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
-#EXTINF:-1 tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Magyar",Pannon RTV
+#EXTINF:-1 tvg-logo="https://i.imgur.com/iD5tCjX.png" tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Magyar",Pannon RTV
 https://stream.nmih.hu:4102/live.m3u8
-#EXTINF:-1 tvg-name="Országgyűlés (plenáris)" tvg-id="OrszaggyulesOGYplenaris.hu@SD" group-title="Magyar",Országgyűlés (plenáris)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/hbblRpZ.png" tvg-name="Országgyűlés (plenáris)" tvg-id="OrszaggyulesOGYplenaris.hu@SD" group-title="Magyar",Országgyűlés (plenáris)
 https://plenaris.parlament.hu:446/edgelive/smil:mkogyplen.smil/playlist.m3u8
 #EXTINF:-1 tvg-name="VTV Mohács" group-title="Magyar",VTV Mohács
 http://127.0.0.1:8088/p/_?u=https%3A%2F%2Fvtvmohacs.medialivecdn.hu%2Fvtvmohacs%2Fe7b867859b189ff088a43d41f948db06.sdp%2Fplaylist.m3u8&ref=https%3A%2F%2Fmedialive.hu%2Fplayer%2Fstart%2Fvtvmohacs.html
-#EXTINF:-1 tvg-name="Kapos TV" tvg-id="KaposTV.hu@SD" group-title="Magyar",Kapos TV
+#EXTINF:-1 tvg-logo="https://i.imgur.com/ZMrj2C5.png" tvg-name="Kapos TV" tvg-id="KaposTV.hu@SD" group-title="Magyar",Kapos TV
 https://cloudfront44.lexanetwork.com:1344/relay01/broadcast004.sdp/playlist.m3u8
-#EXTINF:-1 tvg-name="TelePaks" tvg-id="Telepaks.hu" group-title="Magyar",TelePaks
+#EXTINF:-1 tvg-logo="https://i.imgur.com/T8ueztB.png" tvg-name="TelePaks" tvg-id="Telepaks.hu" group-title="Magyar",TelePaks
 https://cloudfront44.lexanetwork.com:1344/relay02/livestream004.sdp/playlist.m3u8
-#EXTINF:-1 tvg-name="NHK World-Japan" tvg-id="NHK.World.HD.uk" group-title="Backups",NHK World-Japan (alt)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Mhw1Ihk.png" tvg-name="NHK World-Japan" tvg-id="NHK.World.HD.uk" group-title="Backups",NHK World-Japan (alt)
 https://media-osa.hls.nhkworld.jp/hls/w/live/master.m3u8
-#EXTINF:-1 tvg-name="CGTN" tvg-id="CGTN.sg" group-title="Backups",CGTN (alt)
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/CGTN.svg/960px-CGTN.svg.png" tvg-name="CGTN" tvg-id="CGTN.sg" group-title="Backups",CGTN (alt)
 https://amg00405-rakutentv-cgtn-rakuten-i9tar.amagi.tv/master.m3u8
-#EXTINF:-1 tvg-name="CGTN Documentary" tvg-id="CGTN-Documentary.sg" group-title="Backups",CGTN Documentary (alt)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/JHv0WxM.png" tvg-name="CGTN Documentary" tvg-id="CGTN-Documentary.sg" group-title="Backups",CGTN Documentary (alt)
 https://hlspackager.akamaized.net/live/DB/CGTN_DOCUMENTARY/HLS/CGTN_DOCUMENTARY.m3u8
-#EXTINF:-1 tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="Backups",Arirang TV (alt)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/Asu5pE9.png" tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="Backups",Arirang TV (alt)
 https://amdlive-ch01-ctnd-com.akamaized.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8
-#EXTINF:-1 tvg-name="DW English" tvg-id="Deutsche.Welle.(English).sg" group-title="Backups",DW English (alt)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/8MRNFb9.png" tvg-name="DW English" tvg-id="Deutsche.Welle.(English).sg" group-title="Backups",DW English (alt)
 https://amg01644-amg01644c1-amgplt0343.playout.now3.amagi.tv/ts-eu-w1-n2/playlist/amg01644-amg01644c1-amgplt0343/playlist.m3u8
-#EXTINF:-1 tvg-name="France 24 English" tvg-id="FRANCE.24.HD.uk" group-title="Backups",France 24 English (alt)
+#EXTINF:-1 tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_FRANCE_24/images/LOGO_HD/image.png" tvg-name="France 24 English" tvg-id="FRANCE.24.HD.uk" group-title="Backups",France 24 English (alt)
 https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_5000.m3u8
-#EXTINF:-1 tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="Backups",Al Jazeera English (alt)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/7bRVpnu.png" tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="Backups",Al Jazeera English (alt)
 https://live-hls-apps-aje-v3-fa.getaj.net/AJE/index.m3u8
-#EXTINF:-1 tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Backups",Pannon RTV (alt)
+#EXTINF:-1 tvg-logo="https://i.imgur.com/iD5tCjX.png" tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Backups",Pannon RTV (alt)
 https://stream2.nmih.hu:4102/live.m3u8
-#EXTINF:-1 tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="Backups",BBC News (alt)
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/BBC_News_2022_%28Alt%29.svg/500px-BBC_News_2022_%28Alt%29.svg.png" tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="Backups",BBC News (alt)
 https://vs-cmaf-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/hevc_iptv_mse_v0.mpd
