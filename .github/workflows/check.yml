@@ -1,0 +1,19 @@
+name: Check streams
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Optional: extra stream URLs to test (space-separated)"
+        required: false
+        default: ""
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check playlist streams
+        env:
+          CHECK_URLS: ${{ inputs.urls }}
+        run: python3 check_streams.py
