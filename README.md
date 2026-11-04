@@ -76,8 +76,10 @@ Hub app passes such streams through with the header added:
 Adding `&res=720,480` to such an address keeps only those picture heights in the stream's quality list
 (`ref` is optional). TVRI World uses this, so the player can't pick its 240p, 360p or 1080p versions.
 
-TVRI World's guide comes from the maxstream.tv schedule (no XMLTV guide has the channel); the guide
-workflow converts it.
+No XMLTV guide has TVRI World, Balaton TV or Kapos TV, so the guide workflow builds theirs from other
+schedules: the maxstream.tv schedule (TVRI World), port.hu (Balaton TV) and Kapos TV's own weekly
+programme page. No schedule could be found for Budapest Európa TV, Oxygen Music, Al Arabiya English or
+the Országgyűlés channel.
 
 ### YouTube live channels
 

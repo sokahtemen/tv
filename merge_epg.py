@@ -7,6 +7,7 @@ Sources are streamed and parsed on the fly, so memory use stays small however bi
 If two sources have the same channel, the one listed first wins.
 """
 import gzip
+import html
 import io
 import json
 import os
@@ -15,6 +16,10 @@ import sys
 import urllib.request
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+BUDAPEST = ZoneInfo("Europe/Budapest")
 
 PLAYLIST = "intl-english-tv.m3u"
 OUTPUT = "guide.xml.gz"
@@ -29,8 +34,11 @@ SOURCES = [
     "https://epgshare01.online/epgshare01/epg_ripper_RAKUTEN1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_PLEX1.xml.gz",
     "https://i.mjh.nz/SamsungTVPlus/gb.xml.gz",
-    # Channels no XMLTV guide has: built from the maxstream.tv schedule (Indonesia)
-    "maxstream:0_iu9ah7cu=TVRIWorld.id@SD",
+    "https://i.mjh.nz/au/Sydney/epg.xml.gz",                         # ABC News Australia
+    # Channels no XMLTV guide has, built from the broadcasters' or TV listing sites' schedules
+    "maxstream:0_iu9ah7cu=TVRIWorld.id@SD",   # maxstream.tv (Indonesia)
+    "porthu:297=Balaton.TV.hu",                # port.hu
+    "kapostv:KaposTV.hu@SD",                   # kapos.hu/kapostv/tv-musor.html
 ]
 # For local testing: EPG_SOURCES="a.xml.gz b.xml" python3 merge_epg.py
 if os.environ.get("EPG_SOURCES"):
@@ -42,7 +50,7 @@ FIND = re.compile(os.environ["EPG_FIND"], re.I) if os.environ.get("EPG_FIND") el
 
 
 def label(src):
-    if src.startswith("maxstream:"):
+    if src.startswith(tuple(BUILT)):
         return src
     return "/".join(src.rstrip("/").split("/")[-2:])
 
@@ -61,41 +69,100 @@ def wanted_ids(path):
     return ids
 
 
-def maxstream_guide(src):
-    """maxstream:<video id>=<tvg-id>: the maxstream.tv schedule API, turned into XMLTV."""
-    vid, _, cid = src[len("maxstream:"):].partition("=")
-    req = urllib.request.Request(f"https://vmp.maxstream.tv/api/v3/videos/{vid}/schedules",
-                                 headers={"User-Agent": "Mozilla/5.0"})
-    data = json.load(urllib.request.urlopen(req, timeout=60))
+def to_xmltv(cid, progs):
+    """XMLTV bytes for one channel from (start, stop, title, desc) with aware datetimes."""
     tv = ET.Element("tv")
-    seen = set()
-    for day in data.get("data") or []:
-        items = [m for m in day.get("metadata") or [] if m.get("parentId") == vid]
-        if items:
-            print(f"     maxstream {day.get('date')}: {items[0]['startTime']} .. {items[-1]['endTime']}"
-                  f" ({len(items)} programmes)")
-        for m in items:
-            start, stop = m.get("startTime") or "", m.get("endTime") or ""
-            if not start or not stop or start in seen:
-                continue
-            seen.add(start)
-            # The "Z" is wrong: the times are Jakarta local time (each day's list runs from midnight to
-            # midnight on that clock; iptv-org's grabber reads them the same way)
-            fmt = lambda t: re.sub(r"[-:T]", "", t.rstrip("Z"))[:14] + " +0700"
-            p = ET.SubElement(tv, "programme", start=fmt(start), stop=fmt(stop), channel=cid)
-            ET.SubElement(p, "title", lang="en").text = m.get("tvProgram") or ""
-            if m.get("description"):
-                ET.SubElement(p, "desc", lang="en").text = m["description"]
-    ch = ET.Element("channel", id=cid)
+    ch = ET.SubElement(tv, "channel", id=cid)
     ET.SubElement(ch, "display-name").text = cid
-    tv.insert(0, ch)
+    fmt = lambda t: t.astimezone(timezone.utc).strftime("%Y%m%d%H%M%S +0000")
+    seen = set()
+    for start, stop, title, desc in sorted(progs, key=lambda p: p[0]):
+        if start in seen or not title or stop <= start:
+            continue
+        seen.add(start)
+        p = ET.SubElement(tv, "programme", start=fmt(start), stop=fmt(stop), channel=cid)
+        ET.SubElement(p, "title").text = title
+        if desc:
+            ET.SubElement(p, "desc").text = desc
     return ET.tostring(tv, encoding="utf-8")
 
 
+def fetch(url, timeout=60):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) "
+                                                             "Gecko/20100101 Firefox/128.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read()
+
+
+def maxstream_guide(spec):
+    """<video id>=<tvg-id>: the maxstream.tv schedule API."""
+    vid, _, cid = spec.partition("=")
+    data = json.loads(fetch(f"https://vmp.maxstream.tv/api/v3/videos/{vid}/schedules"))
+    # The "Z" is wrong: the times are Jakarta local time (each day's list runs from midnight to
+    # midnight on that clock; iptv-org's grabber reads them the same way)
+    jakarta = timezone(timedelta(hours=7))
+    parse = lambda t: datetime.strptime(t[:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=jakarta)
+    progs = []
+    for day in data.get("data") or []:
+        for m in day.get("metadata") or []:
+            if m.get("parentId") == vid and m.get("startTime") and m.get("endTime"):
+                progs.append((parse(m["startTime"]), parse(m["endTime"]), m.get("tvProgram"), m.get("description")))
+    return to_xmltv(cid, progs)
+
+
+def porthu_guide(spec):
+    """<port.hu channel number>=<tvg-id>: port.hu's TV listing API, today and the next two days."""
+    num, _, cid = spec.partition("=")
+    progs, today = [], datetime.now(BUDAPEST).date()
+    for d in range(3):
+        day = (today + timedelta(days=d)).isoformat()
+        data = json.loads(fetch(f"https://port.hu/tvapi?channel_id%5B%5D=tvchannel-{num}"
+                                f"&i_datetime_from={day}&i_datetime_to={day}"))
+        for block in (data.values() if isinstance(data, dict) else []):
+            for ch in block.get("channels") or []:
+                if ch.get("id") != f"tvchannel-{num}":
+                    continue
+                for p in ch.get("programs") or []:
+                    try:
+                        start = datetime.fromisoformat(p["start_datetime"])
+                        stop = datetime.fromisoformat(p["end_datetime"])
+                    except (KeyError, TypeError, ValueError):
+                        continue
+                    progs.append((start, stop, p.get("title"), p.get("description") or p.get("short_description")))
+    return to_xmltv(cid, progs)
+
+
+HU_MONTHS = {m: i for i, m in enumerate(["január", "február", "március", "április", "május", "június", "július",
+                                          "augusztus", "szeptember", "október", "november", "december"], 1)}
+
+
+def kapostv_guide(cid):
+    """Kapos TV's own weekly schedule page (one table per day, times in Hungarian time)."""
+    page = fetch("https://kapos.hu/kapostv/tv-musor.html").decode("utf-8", "replace")
+    progs = []
+    for body in re.split(r'<div id="tab-\d+-body"', page)[1:]:
+        m = re.search(r"(\d{4})\.\s*(\w+)\s+(\d{1,2})\.", body)
+        if not m or m.group(2).lower() not in HU_MONTHS:
+            continue
+        day = datetime(int(m.group(1)), HU_MONTHS[m.group(2).lower()], int(m.group(3)))
+        rows = re.findall(r'<td class="left">\s*(\d{1,2})[.:](\d{2})\s*</td>\s*<td>(.*?)</td>', body, re.S)
+        times = [(day.replace(hour=int(h), minute=int(mi)).replace(tzinfo=BUDAPEST),
+                  re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", t))).strip()) for h, mi, t in rows]
+        for i, (start, title) in enumerate(times):
+            # each programme runs until the next one; the day's last one is given an hour
+            stop = times[i + 1][0] if i + 1 < len(times) else start + timedelta(hours=1)
+            progs.append((start, stop, title, None))
+    return to_xmltv(cid, progs)
+
+
+BUILT = {"maxstream:": maxstream_guide, "porthu:": porthu_guide, "kapostv:": kapostv_guide}
+
+
 def open_source(src):
-    if src.startswith("maxstream:"):
-        raw = io.BufferedReader(io.BytesIO(maxstream_guide(src)))
-        return raw, raw
+    for prefix, build in BUILT.items():
+        if src.startswith(prefix):
+            raw = io.BufferedReader(io.BytesIO(build(src[len(prefix):])))
+            return raw, raw
     """Returns (raw, stream): the guide as an XML byte stream, decompressed on the fly if gzipped."""
     if src.startswith(("http://", "https://")):
         req = urllib.request.Request(src, headers={"User-Agent": "epg-merge/1.0"})
@@ -162,12 +229,12 @@ def main():
         kept = 0
         ids = list(res["channels"]) + [c for c in res["programmes"] if c not in res["channels"]]
         for cid in ids:
-            if cid in owner:
-                continue  # an earlier source already has this channel
-            owner[cid] = src
-            if cid in res["channels"]:
+            if cid not in channels and cid in res["channels"]:
                 channels[cid] = res["channels"][cid]
             progs = res["programmes"].get(cid, [])
+            if cid in owner or not progs:
+                continue  # an earlier source already has its programmes (or this one has none)
+            owner[cid] = src
             programmes.extend(progs)
             kept += len(progs)
         print(f"OK   {label(src)}: {kept} programmes kept")
