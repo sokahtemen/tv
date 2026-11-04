@@ -7,6 +7,10 @@ on:
         description: "Optional: extra stream URLs to test (space-separated)"
         required: false
         default: ""
+      playlist:
+        description: "Optional: playlist file in the repo to check instead of the main one"
+        required: false
+        default: ""
 
 jobs:
   check:
@@ -16,4 +20,5 @@ jobs:
       - name: Check playlist streams
         env:
           CHECK_URLS: ${{ inputs.urls }}
+          CHECK_PLAYLIST: ${{ inputs.playlist }}
         run: python3 check_streams.py

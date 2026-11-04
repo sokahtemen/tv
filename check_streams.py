@@ -54,11 +54,21 @@ def check(name, url):
 
 def main():
     entries = []
-    lines = open(PLAYLIST, encoding="utf-8").read().splitlines()
+    lines = open(os.environ.get("CHECK_PLAYLIST") or PLAYLIST, encoding="utf-8").read().splitlines()
     for i, line in enumerate(lines):
-        if line.startswith("#EXTINF") and i + 1 < len(lines):
-            url = lines[i + 1].strip()
+        if not line.startswith("#EXTINF"):
+            continue
+        j, opts = i + 1, {}
+        while j < len(lines) and lines[j].startswith("#"):  # #EXTVLCOPT:http-referrer=... etc.
+            m = re.match(r"#EXTVLCOPT:http-(referrer|user-agent)=(.*)", lines[j].strip())
+            if m:
+                opts["Referer" if m.group(1) == "referrer" else "User-Agent"] = m.group(2)
+            j += 1
+        if j < len(lines):
+            url = lines[j].strip()
             if url.startswith("http") and "127.0.0.1" not in url:
+                if opts and "|" not in url:
+                    url += "|" + urllib.parse.urlencode(opts)
                 entries.append((line.rsplit(",", 1)[1], url))
     for n, url in enumerate(os.environ.get("CHECK_URLS", "").split(), 1):
         entries.insert(n - 1, (f"extra {n}", url))
