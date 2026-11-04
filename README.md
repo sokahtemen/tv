@@ -70,3 +70,13 @@ YouTube, embedded players), to help add new channels.
 Some local stations' streams only play when the request names their web player as Referer. The MTVA
 Proxy app passes such streams through with the header added:
 `http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>` (both URL-encoded). VTV Mohács uses this.
+
+### YouTube live channels
+
+- **In the app:** *Add YouTube channel*, then enter a channel link, `@handle` or video link/ID. A channel
+  plays whatever it is streaming live right now. The channels appear in the YouTube group of
+  `http://127.0.0.1:8088/all.m3u` (refresh the playlist in the player).
+- **In the playlist:** `http://127.0.0.1:8088/yt?u=@channelhandle` (or a URL-encoded YouTube link).
+
+The app looks up the live stream on YouTube's page, as YouTube's own player does, and reuses it for 30 minutes.
+If YouTube changes its page this can stop working until the app is updated.

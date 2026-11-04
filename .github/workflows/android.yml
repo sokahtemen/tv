@@ -33,7 +33,7 @@ jobs:
           mkdir -p /tmp/mtva
           javac -d /tmp/mtva android/app/src/main/java/hu/sokahtemen/mtva/MtvaProxy.java
           java -cp /tmp/mtva hu.sokahtemen.mtva.MtvaProxy --resolve
-          java -cp /tmp/mtva hu.sokahtemen.mtva.MtvaProxy --selftest
+          java -Dmtva.youtube="Al Jazeera English|@aljazeeraenglish;DW News|https://www.youtube.com/@dwnews" -cp /tmp/mtva hu.sokahtemen.mtva.MtvaProxy --selftest
 
       - name: Build APK
         working-directory: android

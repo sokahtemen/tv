@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
@@ -28,6 +29,7 @@ public class ProxyService extends Service {
     private static Thread starter;
     private static final ArrayDeque<String> recent = new ArrayDeque<String>();
     static volatile String status = "Starting…";
+    private static Context appContext;
 
     private static final MtvaProxy.Log LOG = new MtvaProxy.Log() {
         public void line(String msg) {
@@ -57,6 +59,7 @@ public class ProxyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         synchronized (ProxyService.class) {
+            appContext = getApplicationContext();
             if (proxy == null && starter == null) {
                 starter = new Thread(new Runnable() {
                     public void run() {
@@ -72,6 +75,11 @@ public class ProxyService extends Service {
     /** Runs off the main thread; binding can briefly fail right after a restart. */
     private static void startWithRetry() {
         MtvaProxy p = new MtvaProxy(LOG);
+        Context ctx;
+        synchronized (ProxyService.class) {
+            ctx = appContext;
+        }
+        if (ctx != null) p.setYouTubeChannels(YouTubeStore.load(ctx));
         for (int attempt = 1; attempt <= START_ATTEMPTS; attempt++) {
             try {
                 p.start();
@@ -110,6 +118,37 @@ public class ProxyService extends Service {
         }
         status = "Stopped";
         super.onDestroy();
+    }
+
+    /** The running proxy, or null while it starts. */
+    static MtvaProxy current() {
+        synchronized (ProxyService.class) {
+            return proxy;
+        }
+    }
+
+    /** Re-reads the user's YouTube channels into the running proxy. */
+    static void reloadChannels(Context context) {
+        MtvaProxy p = current();
+        if (p != null) p.setYouTubeChannels(YouTubeStore.load(context));
+    }
+
+    /** Stops the proxy and starts it again (forgets remembered stream addresses). */
+    static void restart(Context context) {
+        synchronized (ProxyService.class) {
+            if (starter != null) return; // already (re)starting
+            if (proxy != null) proxy.stop();
+            proxy = null;
+            appContext = context.getApplicationContext();
+            status = "Restarting…";
+            starter = new Thread(new Runnable() {
+                public void run() {
+                    startWithRetry();
+                }
+            }, "mtva-start");
+            starter.start();
+        }
+        LOG.line("proxy restarted");
     }
 
     @Override

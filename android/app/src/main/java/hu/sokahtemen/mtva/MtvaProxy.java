@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
@@ -42,7 +43,7 @@ import java.util.regex.Pattern;
  *
  * Plain Java with no Android APIs, so it also runs and is tested on a desktop JVM.
  */
-public class MtvaProxy {
+public final class MtvaProxy {
     public static final int PORT = 8088;
     static final String UA = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
 
@@ -52,13 +53,18 @@ public class MtvaProxy {
     private static final long STREAM_CACHE_MS = 60_000;
     /** After a failed lookup, answer from memory this long instead of asking MTVA again. */
     private static final long FAILURE_CACHE_MS = 15_000;
+    /** YouTube's stream addresses stay valid for hours; looking one up downloads a ~1 MB page. */
+    private static final long YT_CACHE_MS = 30 * 60_000;
     private static final int BUFFER = 64 * 1024;
 
     public static final class Channel {
-        public final String key, name, tvgId;
-        final String[] pages;            // MTVA pages with a player for this channel, tried in order
-        volatile String referer;         // the page that worked last; MTVA's CDN expects it
+        public final String key, name, tvgId, group;
+        final String[] pages;            // pages to look the stream up on (MTVA pages, or the YouTube link)
+        volatile String referer;         // sent with every request; MTVA's CDN expects its player page
         final String linkSuffix;         // extra query for rewritten links (Referer of a plain stream)
+        final boolean youtube;
+        final long cacheMs;              // how long a looked-up address is reused
+        volatile String liveTitle = "";  // YouTube: title of the live stream last found
 
         // Last lookup, guarded by this
         private String streamUrl;
@@ -66,23 +72,42 @@ public class MtvaProxy {
         private IOException lastError;
         private long failedAt;
 
-        Channel(String key, String name, String tvgId, String... pages) {
+        private Channel(String key, String name, String tvgId, String group, String referer, String linkSuffix,
+                        boolean youtube, long cacheMs, String... pages) {
             this.key = key;
             this.name = name;
             this.tvgId = tvgId;
+            this.group = group;
             this.pages = pages;
-            this.referer = pages[0];
-            this.linkSuffix = "";
+            this.referer = referer;
+            this.linkSuffix = linkSuffix;
+            this.youtube = youtube;
+            this.cacheMs = cacheMs;
+        }
+
+        /** An MTVA channel. */
+        Channel(String key, String name, String tvgId, String... pages) {
+            this(key, name, tvgId, "Magyar közszolgálati", pages[0], "", false, STREAM_CACHE_MS, pages);
         }
 
         /** Any stream that just needs a Referer header: /p/_?u=<stream>&ref=<page> in a playlist. */
-        private Channel(String referer) throws IOException {
-            this.key = "_";
-            this.name = "Stream from " + hostOf(referer);
-            this.tvgId = "";
-            this.pages = new String[] {referer};
-            this.referer = referer;
-            this.linkSuffix = "&ref=" + URLEncoder.encode(referer, "UTF-8");
+        static Channel withReferer(String referer) throws IOException {
+            return new Channel("_", "Stream from " + hostOf(referer), "", "", referer,
+                    "&ref=" + URLEncoder.encode(referer, "UTF-8"), false, STREAM_CACHE_MS, referer);
+        }
+
+        /** A YouTube live stream; {@code link} must already be normalized. */
+        static Channel youtube(String name, String link) {
+            String key = "yt" + Integer.toHexString(link.hashCode());
+            return new Channel(key, name, "", "YouTube", "https://www.youtube.com/", "", true, YT_CACHE_MS, link);
+        }
+
+        public boolean isYouTube() {
+            return youtube;
+        }
+
+        public String link() {
+            return pages[0];
         }
     }
 
@@ -119,7 +144,11 @@ public class MtvaProxy {
             "https://raw.githubusercontent.com/sokahtemen/tv/main/intl-english-tv.m3u");
     private volatile String mergedCache;
 
-    private final Map<String, Channel> byKey = new LinkedHashMap<String, Channel>();
+    private final List<Channel> builtIn = new ArrayList<Channel>();
+    /** All named channels: MTVA + the user's YouTube channels. Replaced as a whole, never modified. */
+    private volatile Map<String, Channel> byKey = Collections.emptyMap();
+    /** YouTube links played straight from a playlist (/yt?u=...), by key. */
+    private final Map<String, Channel> adHoc = new java.util.concurrent.ConcurrentHashMap<String, Channel>();
     private final String playerUrl;
     private final Log log;
 
@@ -135,8 +164,49 @@ public class MtvaProxy {
         this.log = log;
         for (Channel c : CHANNELS) {
             String override = System.getProperty("mtva.page." + c.key); // for testing
-            byKey.put(c.key, override == null ? new Channel(c.key, c.name, c.tvgId, c.pages)
+            builtIn.add(override == null ? new Channel(c.key, c.name, c.tvgId, c.pages)
                     : new Channel(c.key, c.name, c.tvgId, override));
+        }
+        setYouTubeChannels(Collections.<String[]>emptyList());
+    }
+
+    /**
+     * Sets the user's YouTube channels: {name, link} pairs, links as typed (normalized here; invalid
+     * ones skipped). Channels that didn't change keep their remembered stream address.
+     */
+    public synchronized void setYouTubeChannels(List<String[]> entries) {
+        Map<String, Channel> old = byKey;
+        Map<String, Channel> m = new LinkedHashMap<String, Channel>();
+        for (Channel c : builtIn) m.put(c.key, c);
+        for (String[] e : entries) {
+            String link;
+            try {
+                link = normalizeYouTube(e[1]);
+            } catch (IllegalArgumentException ex) {
+                log.line("skipped YouTube channel " + e[0] + ": " + ex.getMessage());
+                continue;
+            }
+            Channel c = Channel.youtube(e[0], link);
+            Channel prev = old.get(c.key);
+            m.put(c.key, prev != null && prev.name.equals(c.name) ? prev : c);
+        }
+        byKey = Collections.unmodifiableMap(m);
+    }
+
+    /** Current channels in playlist order. */
+    public List<Channel> channels() {
+        return new ArrayList<Channel>(byKey.values());
+    }
+
+    /** Looks a channel's stream up now (or reuses a recent lookup) and describes the result. */
+    public String test(String key) {
+        Channel ch = byKey.get(key);
+        if (ch == null) return "Unknown channel";
+        try {
+            streamUrl(ch, null);
+            return ch.youtube ? "Live now: " + ch.liveTitle : "OK, the stream is available";
+        } catch (IOException e) {
+            return "Not available: " + e.getMessage();
         }
     }
 
@@ -221,12 +291,26 @@ public class MtvaProxy {
                 sendText(out, 200, "audio/x-mpegurl; charset=utf-8", playlist(), head);
             } else if (path.equals("/all.m3u")) {
                 sendText(out, 200, "audio/x-mpegurl; charset=utf-8", mergedPlaylist(), head);
+            } else if (path.equals("/yt") || path.equals("/yt.m3u8")) {
+                // A YouTube live link straight from a playlist: /yt?u=<link>
+                String link;
+                try {
+                    link = normalizeYouTube(String.valueOf(queryParam(query, "u")));
+                } catch (IllegalArgumentException e) {
+                    sendText(out, 400, "text/plain", e.getMessage() + "\n", head);
+                    return;
+                }
+                Channel ch = Channel.youtube("YouTube " + link, link);
+                if (adHoc.size() > 100) adHoc.clear();
+                Channel known = adHoc.putIfAbsent(ch.key, ch);
+                serveChannel(out, known != null ? known : ch, head);
             } else if (path.startsWith("/p/")) {
                 String key = path.substring(3);
                 String url = queryParam(query, "u");
                 String ref = queryParam(query, "ref");
                 Channel ch = key.equals("_") && ref != null && ref.matches("(?i)https?://.+")
-                        ? new Channel(ref) : byKey.get(key);
+                        ? Channel.withReferer(ref) : byKey.get(key);
+                if (ch == null) ch = adHoc.get(key);
                 if (ch == null || url == null || !url.matches("(?i)https?://.+")) {
                     sendText(out, 400, "text/plain", "Bad request\n", head);
                 } else {
@@ -255,14 +339,14 @@ public class MtvaProxy {
         try {
             url = streamUrl(ch, null);
         } catch (IOException e) {
-            sendText(out, 502, "text/plain", "MTVA stream not available: " + e.getMessage() + "\n", head);
+            sendText(out, 502, "text/plain", "Stream not available: " + e.getMessage() + "\n", head);
             return;
         }
         if (forward(out, ch, url, head, true)) return;
         try {
             url = streamUrl(ch, url); // the remembered address stopped working: look it up again
         } catch (IOException e) {
-            sendText(out, 502, "text/plain", "MTVA stream not available: " + e.getMessage() + "\n", head);
+            sendText(out, 502, "text/plain", "Stream not available: " + e.getMessage() + "\n", head);
             return;
         }
         forward(out, ch, url, head, false);
@@ -274,19 +358,30 @@ public class MtvaProxy {
             String body = getText(MERGED, null);
             if (!body.startsWith("#EXTM3U")) throw new IOException("not a playlist");
             mergedCache = body;
-            return body;
+            return body + youtubeEntries();
         } catch (IOException e) {
             log.line("full playlist download failed: " + e.getMessage());
             String cached = mergedCache;
-            return cached != null ? cached : playlist();
+            return cached != null ? cached + youtubeEntries() : playlist();
         }
+    }
+
+    /** The user's YouTube channels as playlist entries, added to the full playlist. */
+    private String youtubeEntries() {
+        StringBuilder sb = new StringBuilder();
+        for (Channel c : byKey.values()) {
+            if (!c.youtube) continue;
+            sb.append("#EXTINF:-1 tvg-name=\"").append(c.name).append("\" group-title=\"YouTube\",").append(c.name)
+                    .append("\nhttp://127.0.0.1:").append(PORT).append('/').append(c.key).append(".m3u8\n");
+        }
+        return sb.length() == 0 ? "" : "\n" + sb;
     }
 
     private String playlist() {
         StringBuilder sb = new StringBuilder("#EXTM3U\n");
         for (Channel c : byKey.values()) {
             sb.append("#EXTINF:-1 tvg-name=\"").append(c.name).append("\" tvg-id=\"").append(c.tvgId)
-                    .append("\" group-title=\"Magyar közszolgálati\",").append(c.name).append('\n')
+                    .append("\" group-title=\"").append(c.group).append("\",").append(c.name).append('\n')
                     .append("http://127.0.0.1:").append(PORT).append('/').append(c.key).append(".m3u8\n");
         }
         return sb.toString();
@@ -387,7 +482,7 @@ public class MtvaProxy {
     String streamUrl(Channel ch, String stale) throws IOException {
         synchronized (ch) {
             long now = System.currentTimeMillis();
-            if (ch.streamUrl != null && !ch.streamUrl.equals(stale) && now - ch.resolvedAt < STREAM_CACHE_MS) {
+            if (ch.streamUrl != null && !ch.streamUrl.equals(stale) && now - ch.resolvedAt < ch.cacheMs) {
                 return ch.streamUrl;
             }
             if (ch.lastError != null && now - ch.failedAt < FAILURE_CACHE_MS) throw ch.lastError;
@@ -402,7 +497,7 @@ public class MtvaProxy {
                 ch.streamUrl = null;
                 ch.lastError = e;
                 ch.failedAt = System.currentTimeMillis();
-                log.line(ch.name + ": could not get stream from MTVA: " + e.getMessage());
+                log.line(ch.name + ": could not get stream from " + (ch.youtube ? "YouTube" : "MTVA") + ": " + e.getMessage());
                 throw e;
             }
         }
@@ -410,6 +505,7 @@ public class MtvaProxy {
 
     /** Looks up a fresh HLS master playlist address, the way MTVA's web player does. */
     public String resolve(Channel ch) throws IOException {
+        if (ch.youtube) return resolveYouTube(ch);
         IOException last = null;
         for (String page : ch.pages) {
             try {
@@ -468,6 +564,78 @@ public class MtvaProxy {
         }
         if (fallback != null) return fallback;
         throw new IOException("no live HLS stream in MTVA player response");
+    }
+
+    // ---------------------------------------------------------------- YouTube
+
+    private static final Pattern YT_ID = Pattern.compile("[A-Za-z0-9_-]{11}");
+    private static final Pattern YT_HLS = Pattern.compile("\"hlsManifestUrl\"\\s*:\\s*\"([^\"]+)\"");
+    private static final Pattern YT_TITLE =
+            Pattern.compile("\"videoDetails\"\\s*:\\s*\\{[^{}]*?\"title\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+
+    /**
+     * Turns what a user types into a YouTube page that shows a live stream:
+     * a video link or ID becomes its watch page; a channel (@handle, link) becomes its /live page.
+     */
+    public static String normalizeYouTube(String input) {
+        String s = input == null ? "" : input.trim();
+        if (YT_ID.matcher(s).matches()) return "https://www.youtube.com/watch?v=" + s;
+        if (s.startsWith("@")) return "https://www.youtube.com/" + s.split("[/?#]")[0] + "/live";
+        if (!s.matches("(?i)https?://.*")) s = "https://" + s;
+        URL u;
+        try {
+            u = new URL(s);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Not a YouTube link: " + input);
+        }
+        String host = u.getHost().toLowerCase(Locale.ROOT).replaceFirst("^(www|m)\\.", "");
+        String path = u.getPath() == null ? "" : u.getPath();
+        String query = u.getQuery() == null ? "" : u.getQuery();
+        if (host.equals("youtu.be")) {
+            String id = path.replaceAll("^/+|/+$", "");
+            if (YT_ID.matcher(id).matches()) return "https://www.youtube.com/watch?v=" + id;
+        } else if (host.equals("youtube.com") || host.equals("music.youtube.com")) {
+            Matcher v = Pattern.compile("(?:^|&)v=([A-Za-z0-9_-]{11})").matcher(query);
+            if (path.equals("/watch") && v.find()) return "https://www.youtube.com/watch?v=" + v.group(1);
+            Matcher live = Pattern.compile("^/(?:live|embed|shorts)/([A-Za-z0-9_-]{11})").matcher(path);
+            if (live.find()) return "https://www.youtube.com/watch?v=" + live.group(1);
+            Matcher chan = Pattern.compile("^/(@[^/]+|channel/[^/]+|c/[^/]+|user/[^/]+)").matcher(path);
+            if (chan.find()) return "https://www.youtube.com/" + chan.group(1) + "/live";
+        }
+        throw new IllegalArgumentException("Not a YouTube video or channel link: " + input);
+    }
+
+    private String resolveYouTube(Channel ch) throws IOException {
+        HttpURLConnection c = open(ch.link(), null);
+        c.setRequestProperty("Accept-Language", "en-US,en;q=0.8");
+        c.setRequestProperty("Cookie", "CONSENT=YES+cb; SOCS=CAI"); // skip the EU cookie-consent page
+        String html;
+        try {
+            int code = c.getResponseCode();
+            if (code >= 400) {
+                discard(c.getErrorStream());
+                throw new IOException("YouTube answered HTTP " + code);
+            }
+            InputStream in = c.getInputStream();
+            try {
+                html = new String(readAll(in), "UTF-8");
+            } finally {
+                closeQuietly(in);
+            }
+        } catch (IOException e) {
+            c.disconnect();
+            throw e;
+        }
+        Matcher m = YT_HLS.matcher(html);
+        if (!m.find()) {
+            if (html.contains("consent.youtube.com")) throw new IOException("YouTube showed its cookie consent page");
+            if (html.contains("confirm you") || html.contains("not a bot")) throw new IOException("YouTube asked for a sign-in (bot check)");
+            if (html.contains("\"isUpcoming\":true")) throw new IOException("the live stream hasn't started yet");
+            throw new IOException("no live stream on this " + (ch.link().endsWith("/live") ? "channel" : "video") + " right now");
+        }
+        Matcher t = YT_TITLE.matcher(html);
+        ch.liveTitle = t.find() ? unescape(t.group(1)) : "";
+        return unescape(m.group(1));
     }
 
     // ---------------------------------------------------------------- helpers
@@ -666,6 +834,12 @@ public class MtvaProxy {
                 System.err.println(msg);
             }
         });
+        String yt = System.getProperty("mtva.youtube", "");
+        if (yt.length() > 0) {
+            List<String[]> entries = new ArrayList<String[]>();
+            for (String e : yt.split(";")) entries.add(e.split("\\|", 2));
+            proxy.setYouTubeChannels(entries);
+        }
         String mode = args.length > 0 ? args[0] : "";
         if (mode.equals("--resolve")) {
             for (Channel c : proxy.byKey.values()) {
