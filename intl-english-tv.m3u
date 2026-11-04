@@ -27,7 +27,7 @@ https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8
 https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/LOGO_i24NEWS.png/960px-LOGO_i24NEWS.png" tvg-name="i24NEWS English" tvg-id="i24NEWS.ENGLISH.il" group-title="News",i24NEWS English
 https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8
-#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Sky_News_logo.svg/960px-Sky_News_logo.svg.png" tvg-name="Sky News" tvg-id="Sky.News.HD.uk" group-title="News",Sky News
+#EXTINF:-1 tvg-logo="https://d2n0069hmnqmmx.cloudfront.net/epgdata/1.0/newchanlogos/512/512/skychb1404.png" tvg-name="Sky News" tvg-id="Sky.News.HD.uk" group-title="News",Sky News
 http://127.0.0.1:8088/yt?u=https%3A%2F%2Fwww.youtube.com%2F%40SkyNews%2Flive
 #EXTINF:-1 tvg-logo="https://i.imgur.com/6eQ2nCJ.png" tvg-name="Reuters TV" tvg-id="GBBD4900001RG" group-title="News",Reuters TV
 https://d5bxknkoxytmb.cloudfront.net/playlist/amg00453-reuters-reuters-samsunggb/playlist.m3u8
