@@ -1,0 +1,35 @@
+name: Long playback test
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel: m1, m2, duna, m4sport, m5, dunaworld"
+        required: true
+        default: "m1"
+      minutes:
+        description: "How long to play"
+        required: true
+        default: "45"
+
+jobs:
+  soak:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Start the proxy
+        run: |
+          mkdir -p /tmp/mtva
+          javac -d /tmp/mtva android/app/src/main/java/hu/sokahtemen/mtva/MtvaProxy.java
+          nohup java -cp /tmp/mtva hu.sokahtemen.mtva.MtvaProxy > /tmp/proxy.log 2>&1 &
+          sleep 3
+      - name: Play
+        run: python3 soak_test.py "${{ inputs.channel }}" "${{ inputs.minutes }}"
+      - name: Proxy log
+        if: always()
+        run: cat /tmp/proxy.log
