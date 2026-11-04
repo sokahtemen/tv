@@ -88,3 +88,6 @@ In the app, select a channel → *Move* (then ▲ ▼ and OK), *Move to the top/
 and *Show in the player again* brings it back).
 `http://127.0.0.1:8088/all.m3u` lists the channels in that order, as one list without groups.
 Refresh the playlist in the player afterwards (and keep the player's sorting on "playlist order").
+
+The app also saves the same playlist as `Download/tv.m3u` on the device after every change, for players
+that load local files.

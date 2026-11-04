@@ -97,6 +97,7 @@ public class ProxyService extends Service {
                 }
                 status = "Running on http://127.0.0.1:" + MtvaProxy.PORT;
                 p.loadPlaylistAsync();
+                if (ctx != null) PlaylistFile.saveAsync(ctx);
                 return;
             } catch (IOException e) {
                 status = "Waiting for port " + MtvaProxy.PORT + " (" + e.getMessage() + ")…";

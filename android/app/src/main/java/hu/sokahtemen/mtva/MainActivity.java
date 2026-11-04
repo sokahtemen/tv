@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
             handler.postDelayed(this, 1000);
         }
     };
-    private TextView status, events;
+    private TextView status, events, fileInfo;
     private LinearLayout channelList;
     private String version = "";
     private String shownChannels = "";
@@ -70,6 +70,12 @@ public class MainActivity extends Activity {
         root.addView(status);
         root.addView(text("Playlist for the player (all channels + guide):  http://127.0.0.1:"
                 + MtvaProxy.PORT + "/all.m3u", 15, Color.rgb(200, 200, 210)));
+        fileInfo = text("", 15, Color.rgb(200, 200, 210));
+        root.addView(fileInfo);
+        if (android.os.Build.VERSION.SDK_INT < 29 && checkSelfPermission(
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
 
         LinearLayout actions = new LinearLayout(this);
         actions.setPadding(0, dp(16), 0, dp(8));
@@ -140,6 +146,8 @@ public class MainActivity extends Activity {
 
     private void refreshStatus() {
         status.setText(ProxyService.status);
+        fileInfo.setText("Same playlist as a file:  Download/" + PlaylistFile.NAME + "   (" + PlaylistFile.lastResult
+                + "; updated after every change)");
         events.setText(ProxyService.recentLog());
         MtvaProxy p = ProxyService.current();
         if (p == null || moving != null) return; // don't rebuild the list while a row is being moved
@@ -231,6 +239,7 @@ public class MainActivity extends Activity {
                             else h.add(e.name);
                             YouTubeStore.saveHidden(MainActivity.this, h);
                             if (px != null) px.setHidden(h);
+                            PlaylistFile.saveAsync(MainActivity.this);
                             renumber();
                             toast(e.name + (isHidden ? " is shown again." : " is hidden.")
                                     + " Refresh the playlist in your player.");
@@ -243,6 +252,7 @@ public class MainActivity extends Activity {
                                 }
                             }
                             ProxyService.reloadChannels(MainActivity.this);
+                            PlaylistFile.saveAsync(MainActivity.this);
                             toast(e.name + " removed");
                         }
                     }
@@ -305,6 +315,7 @@ public class MainActivity extends Activity {
         YouTubeStore.saveOrder(this, names);
         MtvaProxy p = ProxyService.current();
         if (p != null) p.setOrder(names);
+        PlaylistFile.saveAsync(this);
         StringBuilder sig = new StringBuilder();
         if (p != null) for (MtvaProxy.Entry e : p.entries()) sig.append(e.name).append('|');
         if (names.isEmpty()) shownChannels = ""; // reset: rebuild in the original order
@@ -354,6 +365,7 @@ public class MainActivity extends Activity {
         }
         YouTubeStore.add(this, n, rawLink.trim());
         ProxyService.reloadChannels(this);
+        PlaylistFile.saveAsync(this);
         toast(n + " added. Refresh the playlist in your player to see it.");
         MtvaProxy p = ProxyService.current();
         if (p != null) {

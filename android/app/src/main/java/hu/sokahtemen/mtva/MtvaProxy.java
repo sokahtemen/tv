@@ -354,6 +354,11 @@ public final class MtvaProxy {
     }
 
     /** Latest full playlist from GitHub; the last good copy (or just the MTVA channels) if offline. */
+    /** The full playlist as the player gets it (downloads the latest version from GitHub). */
+    public String fullPlaylist() {
+        return mergedPlaylist();
+    }
+
     private String mergedPlaylist() {
         try {
             String body = getText(MERGED, null);
