@@ -14,14 +14,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: "8.10.2"
 
@@ -44,7 +44,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk mtva-proxy.apk
-          gh release delete mtva-proxy --yes --cleanup-tag || true
-          gh release create mtva-proxy mtva-proxy.apk \
-            --title "MTVA Proxy for Android TV" \
-            --notes "Build ${{ github.run_number }}. Install on the TV stick; see README."
+          # Replace the file in place, so the download link never disappears during an update
+          gh release view mtva-proxy >/dev/null 2>&1 || gh release create mtva-proxy \
+            --title "MTVA Proxy for Android TV" --notes "Install on the TV stick; see README."
+          gh release upload mtva-proxy mtva-proxy.apk --clobber
+          gh release edit mtva-proxy --notes "Build ${{ github.run_number }}. Install on the TV stick; see README."

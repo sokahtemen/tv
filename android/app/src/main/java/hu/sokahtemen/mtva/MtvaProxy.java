@@ -2,22 +2,29 @@ package hu.sokahtemen.mtva;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,28 +32,42 @@ import java.util.regex.Pattern;
  * Local HTTP proxy that serves MTVA's live channels (M1, M2, Duna, M4 Sport, M5, Duna World / M4 Sport+)
  * as ordinary HLS, so any IPTV player can play them from http://127.0.0.1:8088/<channel>.m3u8.
  *
- * MTVA's stream addresses are short-lived, so each channel start fetches a fresh one from
- * MTVA's own web player (the same steps as Streamlink's mediaklikk plugin). Every playlist and
- * segment request then goes through this proxy, which adds the headers MTVA's player sends.
+ * MTVA's stream addresses are short-lived and tied to the viewer's IP, so a channel start looks up
+ * a current one from MTVA's own web player (the same steps as Streamlink's mediaklikk plugin).
+ * Playlists and segments then go through this proxy, which adds the headers MTVA's player sends.
  * Nothing is re-encoded.
  *
- * Plain Java with no Android APIs, so it can also run and be tested on a desktop JVM.
+ * Plain Java with no Android APIs, so it also runs and is tested on a desktop JVM.
  */
 public class MtvaProxy {
     public static final int PORT = 8088;
     static final String UA = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
 
+    /** Upper limit for simultaneous player connections; a player needs only a few. */
+    private static final int MAX_CLIENTS = 32;
+    /** A looked-up stream address is reused this long (fast channel switching, player retries). */
+    private static final long STREAM_CACHE_MS = 60_000;
+    /** After a failed lookup, answer from memory this long instead of asking MTVA again. */
+    private static final long FAILURE_CACHE_MS = 15_000;
+    private static final int BUFFER = 64 * 1024;
+
     public static final class Channel {
-        public final String key, name, tvgId, page;
-        final String[] pages;          // MTVA pages with a player for this channel, tried in order
-        volatile String activePage;    // the one that worked last, sent as Referer
+        public final String key, name, tvgId;
+        final String[] pages;            // MTVA pages with a player for this channel, tried in order
+        volatile String referer;         // the page that worked last; MTVA's CDN expects it
+
+        // Last lookup, guarded by this
+        private String streamUrl;
+        private long resolvedAt;
+        private IOException lastError;
+        private long failedAt;
 
         Channel(String key, String name, String tvgId, String... pages) {
             this.key = key;
             this.name = name;
             this.tvgId = tvgId;
-            this.page = pages[0];
             this.pages = pages;
+            this.referer = pages[0];
         }
     }
 
@@ -54,17 +75,14 @@ public class MtvaProxy {
         void line(String msg);
     }
 
-    public static final List<Channel> CHANNELS = new ArrayList<Channel>();
-
-    static {
-        CHANNELS.add(new Channel("m1", "M1", "m1.HD.hu", "https://www.mediaklikk.hu/m1-elo/", "https://hirado.hu/elo/m1"));
-        CHANNELS.add(new Channel("m2", "M2 / Petőfi TV", "m2.HD.hu", "https://www.mediaklikk.hu/m2-elo/", "https://hirado.hu/elo/m2"));
-        CHANNELS.add(new Channel("duna", "Duna", "Duna.TV.hu", "https://www.mediaklikk.hu/duna-elo/"));
-        CHANNELS.add(new Channel("m4sport", "M4 Sport", "m4.hu", "https://m4sport.hu/elo/"));
-        CHANNELS.add(new Channel("m5", "M5", "m5.hu", "https://www.mediaklikk.hu/m5-elo/"));
-        // Duna World shares its channel with M4 Sport+ (weekend afternoons); one stream carries both
-        CHANNELS.add(new Channel("dunaworld", "Duna World / M4 Sport+", "Duna.World.hu", "https://m4sport.hu/elo/?showchannel=mtv4plus"));
-    }
+    public static final List<Channel> CHANNELS = Collections.unmodifiableList(java.util.Arrays.asList(
+            new Channel("m1", "M1", "m1.HD.hu", "https://www.mediaklikk.hu/m1-elo/", "https://hirado.hu/elo/m1"),
+            new Channel("m2", "M2 / Petőfi TV", "m2.HD.hu", "https://www.mediaklikk.hu/m2-elo/", "https://hirado.hu/elo/m2"),
+            new Channel("duna", "Duna", "Duna.TV.hu", "https://www.mediaklikk.hu/duna-elo/"),
+            new Channel("m4sport", "M4 Sport", "m4.hu", "https://m4sport.hu/elo/"),
+            new Channel("m5", "M5", "m5.hu", "https://www.mediaklikk.hu/m5-elo/"),
+            // Duna World shares its channel with M4 Sport+ (weekend afternoons); one stream carries both
+            new Channel("dunaworld", "Duna World / M4 Sport+", "Duna.World.hu", "https://m4sport.hu/elo/?showchannel=mtv4plus")));
 
     private static final Pattern LOAD_PLAYER =
             Pattern.compile("loadPlayer\\s*\\(\\s*(['\"]).+?\\1\\s*,\\s*(\\{.*?\\})\\s*\\)", Pattern.DOTALL);
@@ -81,8 +99,9 @@ public class MtvaProxy {
     private final Map<String, Channel> byKey = new LinkedHashMap<String, Channel>();
     private final String playerUrl;
     private final Log log;
-    private final ExecutorService pool = Executors.newCachedThreadPool();
-    private volatile ServerSocket server;
+
+    private ServerSocket server;          // guarded by this
+    private ThreadPoolExecutor workers;   // guarded by this
 
     public MtvaProxy(Log log) {
         this(System.getProperty("mtva.player", "https://player.mediaklikk.hu/playernew/player.php"), log);
@@ -93,7 +112,8 @@ public class MtvaProxy {
         this.log = log;
         for (Channel c : CHANNELS) {
             String override = System.getProperty("mtva.page." + c.key); // for testing
-            byKey.put(c.key, override == null ? c : new Channel(c.key, c.name, c.tvgId, override));
+            byKey.put(c.key, override == null ? new Channel(c.key, c.name, c.tvgId, c.pages)
+                    : new Channel(c.key, c.name, c.tvgId, override));
         }
     }
 
@@ -101,34 +121,55 @@ public class MtvaProxy {
 
     public synchronized void start() throws IOException {
         if (server != null) return;
-        server = new ServerSocket(PORT, 50, InetAddress.getByName("127.0.0.1"));
-        server.setReuseAddress(true);
-        final ServerSocket s = server;
-        pool.execute(new Runnable() {
+        final ServerSocket s = new ServerSocket();
+        s.setReuseAddress(true); // before bind, so a quick restart doesn't fail with "address in use"
+        try {
+            s.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), PORT), 50);
+        } catch (IOException e) {
+            closeQuietly(s);
+            throw e;
+        }
+        final ThreadPoolExecutor w = new ThreadPoolExecutor(0, MAX_CLIENTS, 30, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(), new NamedThreads("mtva-client"));
+        Thread acceptor = new NamedThreads("mtva-accept").newThread(new Runnable() {
             public void run() {
-                while (!s.isClosed()) {
-                    try {
-                        final Socket client = s.accept();
-                        pool.execute(new Runnable() {
-                            public void run() {
-                                handle(client);
-                            }
-                        });
-                    } catch (IOException e) {
-                        if (!s.isClosed()) log.line("accept failed: " + e);
-                    }
-                }
+                acceptLoop(s, w);
             }
         });
-        log.line("listening on http://127.0.0.1:" + PORT + "/playlist.m3u");
+        server = s;
+        workers = w;
+        acceptor.start();
+        log.line("listening on http://127.0.0.1:" + PORT);
     }
 
     public synchronized void stop() {
-        try {
-            if (server != null) server.close();
-        } catch (IOException ignored) {
-        }
+        closeQuietly(server);
         server = null;
+        if (workers != null) workers.shutdown(); // idle threads end; running requests finish
+        workers = null;
+    }
+
+    private void acceptLoop(ServerSocket s, ThreadPoolExecutor w) {
+        while (!s.isClosed()) {
+            final Socket client;
+            try {
+                client = s.accept();
+            } catch (IOException e) {
+                if (s.isClosed()) break;
+                log.line("accept failed: " + e);
+                sleep(1000); // e.g. out of file descriptors: don't spin
+                continue;
+            }
+            try {
+                w.execute(new Runnable() {
+                    public void run() {
+                        handle(client);
+                    }
+                });
+            } catch (RejectedExecutionException e) {
+                closeQuietly(client); // too many connections at once, or shutting down
+            }
+        }
     }
 
     private void handle(Socket sock) {
@@ -140,7 +181,7 @@ public class MtvaProxy {
             if (request == null) return;
             String header;
             while ((header = readLine(in)) != null && header.length() > 0) {
-                // headers are not needed
+                // request headers are not needed
             }
             String[] parts = request.split(" ");
             if (parts.length < 2 || !(parts[0].equals("GET") || parts[0].equals("HEAD"))) {
@@ -149,8 +190,9 @@ public class MtvaProxy {
             }
             boolean head = parts[0].equals("HEAD");
             String target = parts[1];
-            String path = target.contains("?") ? target.substring(0, target.indexOf('?')) : target;
-            String query = target.contains("?") ? target.substring(target.indexOf('?') + 1) : "";
+            int q = target.indexOf('?');
+            String path = q < 0 ? target : target.substring(0, q);
+            String query = q < 0 ? "" : target.substring(q + 1);
 
             if (path.equals("/") || path.equals("/playlist.m3u")) {
                 sendText(out, 200, "audio/x-mpegurl; charset=utf-8", playlist(), head);
@@ -162,36 +204,42 @@ public class MtvaProxy {
                 if (ch == null || url == null || !url.matches("(?i)https?://.+")) {
                     sendText(out, 400, "text/plain", "Bad request\n", head);
                 } else {
-                    forward(out, ch, url, head);
+                    forward(out, ch, url, head, false);
                 }
             } else {
-                String key = path.substring(1).replaceAll("\\.m3u8?$", "");
-                Channel ch = byKey.get(key);
+                Channel ch = byKey.get(path.substring(1).replaceAll("\\.m3u8?$", ""));
                 if (ch == null) {
                     sendText(out, 404, "text/plain", "Unknown channel\n", head);
-                    return;
+                } else {
+                    serveChannel(out, ch, head);
                 }
-                String master;
-                try {
-                    master = resolve(ch);
-                } catch (IOException e) {
-                    log.line(ch.name + ": could not get stream from MTVA: " + e.getMessage());
-                    sendText(out, 502, "text/plain", "MTVA stream not available: " + e.getMessage() + "\n", head);
-                    return;
-                }
-                log.line(ch.name + ": started");
-                forward(out, ch, master, head);
             }
         } catch (IOException ignored) {
-            // player closed the connection
+            // the player closed the connection
         } catch (RuntimeException e) {
             log.line("internal error: " + e);
         } finally {
-            try {
-                sock.close();
-            } catch (IOException ignored) {
-            }
+            closeQuietly(sock);
         }
+    }
+
+    /** Channel start: the stream's master playlist, from a remembered address if it still works. */
+    private void serveChannel(OutputStream out, Channel ch, boolean head) throws IOException {
+        String url;
+        try {
+            url = streamUrl(ch, null);
+        } catch (IOException e) {
+            sendText(out, 502, "text/plain", "MTVA stream not available: " + e.getMessage() + "\n", head);
+            return;
+        }
+        if (forward(out, ch, url, head, true)) return;
+        try {
+            url = streamUrl(ch, url); // the remembered address stopped working: look it up again
+        } catch (IOException e) {
+            sendText(out, 502, "text/plain", "MTVA stream not available: " + e.getMessage() + "\n", head);
+            return;
+        }
+        forward(out, ch, url, head, false);
     }
 
     /** Latest full playlist from GitHub; the last good copy (or just the MTVA channels) if offline. */
@@ -203,7 +251,8 @@ public class MtvaProxy {
             return body;
         } catch (IOException e) {
             log.line("full playlist download failed: " + e.getMessage());
-            return mergedCache != null ? mergedCache : playlist();
+            String cached = mergedCache;
+            return cached != null ? cached : playlist();
         }
     }
 
@@ -217,34 +266,44 @@ public class MtvaProxy {
         return sb.toString();
     }
 
-    /** Fetches an upstream URL; playlists are rewritten to point back here, everything else is streamed. */
-    private void forward(OutputStream out, Channel ch, String url, boolean head) throws IOException {
-        HttpURLConnection c = open(url, referer(ch));
+    /**
+     * Fetches an upstream URL for the player: playlists are rewritten to point back here, anything
+     * else is streamed through. A fully read upstream response leaves its connection open for reuse,
+     * so segments don't each need a new TLS handshake.
+     *
+     * @param mayFail if true and the upstream fails before anything was sent, returns false and
+     *                sends nothing, so the caller can retry
+     */
+    private boolean forward(OutputStream out, Channel ch, String url, boolean head, boolean mayFail)
+            throws IOException {
+        HttpURLConnection c = open(url, ch.referer);
         int code;
         try {
             code = c.getResponseCode();
         } catch (IOException e) {
+            c.disconnect();
+            if (mayFail) return false;
             log.line(ch.name + ": upstream error " + e);
             sendText(out, 502, "text/plain", "Upstream error: " + e.getMessage() + "\n", head);
-            return;
+            return true;
         }
         if (code >= 400) {
+            discard(c.getErrorStream());
+            if (mayFail) return false;
             log.line(ch.name + ": upstream HTTP " + code + " for " + url);
             sendText(out, 502, "text/plain", "Upstream HTTP " + code + "\n", head);
-            c.disconnect();
-            return;
+            return true;
         }
         String type = c.getContentType() == null ? "" : c.getContentType();
-        BufferedInputStream body = new BufferedInputStream(c.getInputStream());
-        body.mark(16);
-        byte[] magic = new byte[7];
-        int n = body.read(magic);
-        body.reset();
-        boolean isPlaylist = type.toLowerCase().contains("mpegurl") || url.split("\\?")[0].endsWith(".m3u8")
-                || (n == 7 && new String(magic, "UTF-8").equals("#EXTM3U"));
+        InputStream raw = c.getInputStream();
+        boolean drained = false;
         try {
+            BufferedInputStream body = new BufferedInputStream(raw, BUFFER);
+            boolean isPlaylist = type.toLowerCase().contains("mpegurl") || url.split("\\?")[0].endsWith(".m3u8")
+                    || startsWith(body, "#EXTM3U");
             if (isPlaylist) {
                 String text = new String(readAll(body), "UTF-8");
+                drained = true;
                 sendText(out, 200, "application/vnd.apple.mpegurl", rewrite(text, c.getURL(), ch), head);
             } else {
                 long len = c.getContentLengthLong();
@@ -253,18 +312,22 @@ public class MtvaProxy {
                 if (len >= 0) h.append("Content-Length: ").append(len).append("\r\n");
                 h.append("Cache-Control: no-cache\r\nConnection: close\r\n\r\n");
                 out.write(h.toString().getBytes("UTF-8"));
-                if (!head) copy(body, out);
+                if (!head) {
+                    copy(body, out);
+                    drained = true;
+                }
                 out.flush();
             }
+            return true;
         } finally {
-            body.close();
-            c.disconnect();
+            if (drained) closeQuietly(raw); // connection goes back to the keep-alive pool
+            else c.disconnect();           // partly read (player left): drop it
         }
     }
 
     /** Points every URI in an HLS playlist back at this proxy (absolute, so relative paths keep working). */
     String rewrite(String text, URL base, Channel ch) throws IOException {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(text.length() * 2);
         for (String line : text.split("\r?\n")) {
             String t = line.trim();
             if (t.startsWith("#")) {
@@ -290,23 +353,48 @@ public class MtvaProxy {
 
     // ---------------------------------------------------------------- MTVA
 
-    /** Returns a fresh HLS master playlist URL for a channel, the way MTVA's web player gets it. */
+    /**
+     * Current stream address for a channel. Reuses a recent lookup unless it equals {@code stale},
+     * and remembers failures briefly so a retrying player doesn't make it ask MTVA again and again.
+     * One lookup per channel at a time; simultaneous requests wait for it.
+     */
+    String streamUrl(Channel ch, String stale) throws IOException {
+        synchronized (ch) {
+            long now = System.currentTimeMillis();
+            if (ch.streamUrl != null && !ch.streamUrl.equals(stale) && now - ch.resolvedAt < STREAM_CACHE_MS) {
+                return ch.streamUrl;
+            }
+            if (ch.lastError != null && now - ch.failedAt < FAILURE_CACHE_MS) throw ch.lastError;
+            try {
+                String url = resolve(ch);
+                ch.streamUrl = url;
+                ch.resolvedAt = System.currentTimeMillis();
+                ch.lastError = null;
+                log.line(ch.name + ": started");
+                return url;
+            } catch (IOException e) {
+                ch.streamUrl = null;
+                ch.lastError = e;
+                ch.failedAt = System.currentTimeMillis();
+                log.line(ch.name + ": could not get stream from MTVA: " + e.getMessage());
+                throw e;
+            }
+        }
+    }
+
+    /** Looks up a fresh HLS master playlist address, the way MTVA's web player does. */
     public String resolve(Channel ch) throws IOException {
         IOException last = null;
         for (String page : ch.pages) {
             try {
                 String url = resolveFrom(page);
-                ch.activePage = page;
+                ch.referer = page;
                 return url;
             } catch (IOException e) {
                 last = e;
             }
         }
         throw last;
-    }
-
-    static String referer(Channel ch) {
-        return ch.activePage != null ? ch.activePage : ch.page;
     }
 
     private String resolveFrom(String page) throws IOException {
@@ -372,10 +460,19 @@ public class MtvaProxy {
         HttpURLConnection c = open(url, referer);
         try {
             int code = c.getResponseCode();
-            if (code >= 400) throw new IOException("HTTP " + code + " from " + url);
-            return new String(readAll(c.getInputStream()), "UTF-8");
-        } finally {
+            if (code >= 400) {
+                discard(c.getErrorStream());
+                throw new IOException("HTTP " + code + " from " + url);
+            }
+            InputStream in = c.getInputStream();
+            try {
+                return new String(readAll(in), "UTF-8");
+            } finally {
+                closeQuietly(in);
+            }
+        } catch (IOException e) {
             c.disconnect();
+            throw e;
         }
     }
 
@@ -390,7 +487,7 @@ public class MtvaProxy {
     }
 
     static String unescape(String s) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c != '\\' || i + 1 >= s.length()) {
@@ -425,6 +522,17 @@ public class MtvaProxy {
         return null;
     }
 
+    /** True if the stream begins with the given ASCII text; the stream position is unchanged. */
+    private static boolean startsWith(BufferedInputStream in, String prefix) throws IOException {
+        byte[] want = prefix.getBytes("UTF-8");
+        byte[] got = new byte[want.length];
+        in.mark(want.length);
+        int n = 0, r;
+        while (n < got.length && (r = in.read(got, n, got.length - n)) != -1) n += r;
+        in.reset();
+        return n == want.length && java.util.Arrays.equals(want, got);
+    }
+
     private static String readLine(InputStream in) throws IOException {
         StringBuilder sb = new StringBuilder();
         int b;
@@ -437,15 +545,28 @@ public class MtvaProxy {
     }
 
     private static byte[] readAll(InputStream in) throws IOException {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        ByteArrayOutputStream buf = new ByteArrayOutputStream(16 * 1024);
         copy(in, buf);
         return buf.toByteArray();
     }
 
     private static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] b = new byte[65536];
+        byte[] b = new byte[BUFFER];
         int n;
         while ((n = in.read(b)) != -1) out.write(b, 0, n);
+    }
+
+    /** Reads and drops a (small) error body so the connection can be reused. */
+    private static void discard(InputStream in) {
+        if (in == null) return;
+        try {
+            byte[] b = new byte[4096];
+            int total = 0, n;
+            while (total < BUFFER && (n = in.read(b)) != -1) total += n;
+        } catch (IOException ignored) {
+        } finally {
+            closeQuietly(in);
+        }
     }
 
     private static void sendText(OutputStream out, int code, String type, String body, boolean head)
@@ -460,7 +581,106 @@ public class MtvaProxy {
         out.flush();
     }
 
-    // ---------------------------------------------------------------- self-test helpers
+    private static void closeQuietly(Closeable c) {
+        if (c == null) return;
+        try {
+            c.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    private static void closeQuietly(Socket s) {
+        if (s == null) return;
+        try {
+            s.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    private static void closeQuietly(ServerSocket s) {
+        if (s == null) return;
+        try {
+            s.close();
+        } catch (IOException ignored) {
+        }
+    }
+
+    private static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /** Daemon threads with readable names, so they never keep the process alive on their own. */
+    private static final class NamedThreads implements ThreadFactory {
+        private final String prefix;
+        private final AtomicInteger n = new AtomicInteger();
+
+        NamedThreads(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, prefix + "-" + n.incrementAndGet());
+            t.setDaemon(true);
+            return t;
+        }
+    }
+
+    // ---------------------------------------------------------------- desktop entry point (tests, CI)
+
+    /** java MtvaProxy             run the proxy
+     *  java MtvaProxy --resolve   print the stream address each channel resolves to
+     *  java MtvaProxy --selftest  play every channel through the proxy once, like a player */
+    public static void main(String[] args) throws Exception {
+        MtvaProxy proxy = new MtvaProxy(new Log() {
+            public void line(String msg) {
+                System.err.println(msg);
+            }
+        });
+        String mode = args.length > 0 ? args[0] : "";
+        if (mode.equals("--resolve")) {
+            for (Channel c : proxy.byKey.values()) {
+                try {
+                    String url = proxy.resolve(c);
+                    HttpURLConnection conn = open(url, c.referer);
+                    System.out.println("OK   " + c.name + ": " + url + "  (playlist HTTP " + conn.getResponseCode() + ")");
+                    conn.disconnect();
+                } catch (Exception e) {
+                    System.out.println("FAIL " + c.name + ": " + e.getMessage());
+                }
+            }
+            return;
+        }
+        proxy.start();
+        if (mode.equals("--selftest")) {
+            String all = fetchLocal("/all.m3u");
+            boolean hasMtva = all.contains("http://127.0.0.1:" + PORT + "/m1.m3u8");
+            System.out.println((hasMtva ? "OK   " : "FAIL ") + "/all.m3u: " + (all.split("#EXTINF", -1).length - 1)
+                    + " channels" + (hasMtva ? ", includes the MTVA channels" : ", MTVA channels missing"));
+            for (Channel c : proxy.byKey.values()) {
+                try {
+                    long t0 = System.nanoTime();
+                    String master = fetchLocal("/" + c.key + ".m3u8");
+                    long first = (System.nanoTime() - t0) / 1000000;
+                    String media = master.contains("#EXTINF") ? master : fetchLocal(firstUri(master));
+                    int bytes = fetchLocalBytes(lastUri(media)).length;
+                    t0 = System.nanoTime();
+                    fetchLocal("/" + c.key + ".m3u8");
+                    long again = (System.nanoTime() - t0) / 1000000;
+                    System.out.println("OK   " + c.name + ": playlists + newest segment (" + bytes + " bytes); start "
+                            + first + " ms, restart " + again + " ms");
+                } catch (Exception e) {
+                    System.out.println("FAIL " + c.name + ": " + e.getMessage());
+                }
+            }
+            proxy.stop();
+            System.exit(0);
+        }
+        Thread.currentThread().join();
+    }
 
     private static byte[] fetchLocalBytes(String path) throws IOException {
         HttpURLConnection c = (HttpURLConnection) new URL("http://127.0.0.1:" + PORT + path).openConnection();
@@ -478,64 +698,23 @@ public class MtvaProxy {
         return new String(fetchLocalBytes(path), "UTF-8");
     }
 
-    /** First (variants: highest listed first is fine) or last (segments: newest) URI line of a playlist. */
-    private static String lastUri(String playlist, boolean first) throws IOException {
-        String found = null;
-        for (String line : playlist.split("\n")) {
-            String t = line.trim();
-            if (t.length() == 0 || t.startsWith("#")) continue;
-            if (first) return t;
-            found = t;
-        }
-        if (found == null) throw new IOException("empty playlist:\n" + playlist);
-        return found;
+    private static String firstUri(String playlist) throws IOException {
+        List<String> u = uris(playlist);
+        return u.get(0);
     }
 
-    // ---------------------------------------------------------------- desktop entry point
+    private static String lastUri(String playlist) throws IOException {
+        List<String> u = uris(playlist);
+        return u.get(u.size() - 1);
+    }
 
-    /** java MtvaProxy            run the proxy
-     *  java MtvaProxy --resolve  just print the stream address each channel resolves to */
-    public static void main(String[] args) throws Exception {
-        Log stderr = new Log() {
-            public void line(String msg) {
-                System.err.println(msg);
-            }
-        };
-        MtvaProxy proxy = new MtvaProxy(stderr);
-        if (args.length > 0 && args[0].equals("--selftest")) {
-            // Plays each channel through the proxy like a player would: master, media playlist, newest segment
-            proxy.start();
-            String all = fetchLocal("/all.m3u");
-            boolean hasMtva = all.contains("http://127.0.0.1:" + PORT + "/m1.m3u8");
-            System.out.println((hasMtva ? "OK   " : "FAIL ") + "/all.m3u: " + all.split("#EXTINF", -1).length
-                    + " lines with channels" + (hasMtva ? ", includes the MTVA channels" : ", MTVA channels missing"));
-            for (Channel c : proxy.byKey.values()) {
-                try {
-                    String master = fetchLocal("/" + c.key + ".m3u8");
-                    String media = master.contains("#EXTINF") ? master : fetchLocal(lastUri(master, true));
-                    int bytes = fetchLocalBytes(lastUri(media, false)).length;
-                    System.out.println("OK   " + c.name + ": playlists + newest segment (" + bytes + " bytes)");
-                } catch (Exception e) {
-                    System.out.println("FAIL " + c.name + ": " + e.getMessage());
-                }
-            }
-            proxy.stop();
-            System.exit(0);
+    private static List<String> uris(String playlist) throws IOException {
+        List<String> out = new ArrayList<String>();
+        for (String line : playlist.split("\n")) {
+            String t = line.trim();
+            if (t.length() > 0 && !t.startsWith("#")) out.add(t);
         }
-        if (args.length > 0 && args[0].equals("--resolve")) {
-            for (Channel c : proxy.byKey.values()) {
-                try {
-                    String url = proxy.resolve(c);
-                    HttpURLConnection conn = open(url, referer(c));
-                    System.out.println("OK   " + c.name + ": " + url + "  (playlist HTTP " + conn.getResponseCode() + ")");
-                    conn.disconnect();
-                } catch (Exception e) {
-                    System.out.println("FAIL " + c.name + ": " + e.getMessage());
-                }
-            }
-            return;
-        }
-        proxy.start();
-        Thread.currentThread().join();
+        if (out.isEmpty()) throw new IOException("empty playlist:\n" + playlist);
+        return out;
     }
 }

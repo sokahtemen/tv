@@ -58,3 +58,6 @@ addresses stay valid.
 **Actions → Check streams → Run workflow** tests every channel in the playlist (and any extra URLs you
 enter) the way a player does. It runs from a US server, so Europe-only channels can show as failed even
 though they play at home.
+
+**Actions → Long playback test** plays one Hungarian public channel through the MTVA proxy for a set
+time (default 45 minutes) and reports any interruption.
