@@ -22,8 +22,6 @@ SOURCES = [
     # Free streaming (FAST) channels
     "https://epgshare01.online/epgshare01/epg_ripper_RAKUTEN1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_PLEX1.xml.gz",
-    "https://i.mjh.nz/Plex/gb.xml.gz",
-    "https://i.mjh.nz/PlutoTV/gb.xml.gz",
     "https://i.mjh.nz/SamsungTVPlus/gb.xml.gz",
 ]
 # For local testing: EPG_SOURCES="a.xml.gz b.xml" python3 merge_epg.py

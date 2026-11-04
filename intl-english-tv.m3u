@@ -39,14 +39,10 @@ https://amg01082-cna-amg01082c1-vidaa-gb-7580.playouts.now.amagi.tv/playlist.m3u
 https://lds-timeline-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-name="Autentic History" tvg-id="GB3200005SO" group-title="Documentary & Nature",Autentic History
 https://9e754fa707344ccca6d84955c8fcaf36.mediatailor.us-east-1.amazonaws.com/v1/master/44f73ba4d03e9607dcd9bebdcb8494d86964f1d8/RlaxxTV-eu_AutenticHistory/playlist.m3u8
-#EXTINF:-1 tvg-name="Documentary+ International" tvg-id="64305451fc3be5947773c339-614e286b2bac097ffd6fd6ab" group-title="Documentary & Nature",Documentary+ International
-https://1d153317c8db4250b3789601274e2402.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-887-DOCUMENTARYINTERNATIONAL-DOCUMENTARYPLUS/mt/documentaryplus/887/hls/master/playlist.m3u8
 #EXTINF:-1 tvg-name="Wonder" tvg-id="plex.tv.Wonder.plex" group-title="Documentary & Nature",Wonder
 https://lds-wonder-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-name="WildEarth" tvg-id="WildEarth.uk" group-title="Documentary & Nature",WildEarth
 https://dqga3jatxofgx.cloudfront.net/WildEarth.m3u8
-#EXTINF:-1 tvg-name="Terra Mater WILD English" tvg-id="6a19496db1a87d7ce78bd379" group-title="Documentary & Nature",Terra Mater WILD English
-https://amg01775-amg01775c1-amgplt0343.playout.now3.amagi.tv/playlist/amg01775-amg01775c1-amgplt0343/playlist.m3u8
 #EXTINF:-1 tvg-name="NatureTime" tvg-id="UK:.Nature.Time.be" group-title="Documentary & Nature",NatureTime
 https://bamusa-naturetime-emea-eng-rakuten.amagi.tv/playlist.m3u8
 #EXTINF:-1 tvg-name="Adventure Earth" tvg-id="UK:.Adventure.Earth.be" group-title="Documentary & Nature",Adventure Earth
@@ -65,8 +61,6 @@ http://127.0.0.1:8088/m5.m3u8
 http://127.0.0.1:8088/dunaworld.m3u8
 #EXTINF:-1 tvg-name="Euronews Magyar" tvg-id="Euronews.hu" group-title="Magyar",Euronews Magyar
 https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
-#EXTINF:-1 tvg-name="ATV" tvg-id="ATV.hu" group-title="Magyar",ATV
-https://stream.atv.hu/atvlive/atvstream_2_aac/playlist.m3u8
 #EXTINF:-1 tvg-name="Pannon RTV" tvg-id="PannonTV.rs@SD" group-title="Magyar",Pannon RTV
 https://stream.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-name="Országgyűlés (plenáris)" tvg-id="OrszaggyulesOGYplenaris.hu@SD" group-title="Magyar",Országgyűlés (plenáris)
@@ -75,8 +69,6 @@ https://plenaris.parlament.hu:446/edgelive/smil:mkogyplen.smil/playlist.m3u8
 https://cloudfront44.lexanetwork.com:1344/relay01/broadcast004.sdp/playlist.m3u8
 #EXTINF:-1 tvg-name="TelePaks" tvg-id="Telepaks.hu" group-title="Magyar",TelePaks
 https://cloudfront44.lexanetwork.com:1344/relay02/livestream004.sdp/playlist.m3u8
-#EXTINF:-1 tvg-name="Bajai TV" tvg-id="BajaiTV.hu@SD" group-title="Magyar",Bajai TV
-https://cloudfront41.lexanetwork.com:1344/relay01/livestream002.sdp/playlist.m3u8
 #EXTINF:-1 tvg-name="NHK World-Japan" tvg-id="NHK.World.HD.uk" group-title="Backups",NHK World-Japan (alt)
 https://media-osa.hls.nhkworld.jp/hls/w/live/master.m3u8
 #EXTINF:-1 tvg-name="CGTN" tvg-id="CGTN.sg" group-title="Backups",CGTN (alt)
@@ -93,7 +85,5 @@ https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_5000.m3u8
 https://live-hls-apps-aje-v3-fa.getaj.net/AJE/index.m3u8
 #EXTINF:-1 tvg-name="Pannon RTV" tvg-id="PannonTV.rs@SD" group-title="Backups",Pannon RTV (alt)
 https://stream2.nmih.hu:4102/live.m3u8
-#EXTINF:-1 tvg-name="Kapos TV" tvg-id="KaposTV.hu@SD" group-title="Backups",Kapos TV (alt)
-https://cloudfront63.lexanetwork.com:1344/relay01/livestream004.sdp/playlist.m3u8
 #EXTINF:-1 tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="Backups",BBC News (alt)
 https://vs-cmaf-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/hevc_iptv_mse_v0.mpd
