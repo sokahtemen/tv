@@ -42,11 +42,11 @@ public class ProxyService extends Service {
     public void onCreate() {
         super.onCreate();
         NotificationManager nm = getSystemService(NotificationManager.class);
-        nm.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "MTVA Proxy", NotificationManager.IMPORTANCE_LOW));
+        nm.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "TV Hub", NotificationManager.IMPORTANCE_LOW));
         Notification n = new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_media_play)
-                .setContentTitle("MTVA Proxy")
-                .setContentText("M1, M2, Duna, M4 Sport, M5, Duna World on 127.0.0.1:" + MtvaProxy.PORT)
+                .setContentTitle("TV Hub")
+                .setContentText("Playlist and Hungarian channels on 127.0.0.1:" + MtvaProxy.PORT)
                 .setOngoing(true)
                 .build();
         if (Build.VERSION.SDK_INT >= 29) {

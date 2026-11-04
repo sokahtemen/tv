@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(48), dp(28), dp(48), dp(28));
 
-        TextView title = text("MTVA Proxy " + version, 26, Color.WHITE);
+        TextView title = text("TV Hub " + version, 26, Color.WHITE);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         root.addView(title);
         status = text("", 16, Color.rgb(170, 220, 170));

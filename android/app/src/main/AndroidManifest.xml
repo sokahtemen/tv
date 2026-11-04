@@ -17,7 +17,7 @@
         android:allowBackup="false"
         android:banner="@drawable/banner"
         android:icon="@drawable/icon"
-        android:label="MTVA Proxy"
+        android:label="TV Hub"
         android:usesCleartextTraffic="true">
 
         <activity
