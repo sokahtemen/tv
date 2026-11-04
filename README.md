@@ -84,5 +84,7 @@ If YouTube changes its page this can stop working until the app is updated.
 ### Channel order (free, on the device)
 
 In the app, select a channel → *Move* (then ▲ ▼ and OK), *Move to the top/bottom*, or *Reset order*.
+*Hide from the player* leaves a channel out of the player's playlist (it stays in the app, marked hidden,
+and *Show in the player again* brings it back).
 `http://127.0.0.1:8088/all.m3u` lists the channels in that order, as one list without groups.
 Refresh the playlist in the player afterwards (and keep the player's sorting on "playlist order").

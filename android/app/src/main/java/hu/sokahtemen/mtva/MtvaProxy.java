@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -363,7 +364,8 @@ public final class MtvaProxy {
             if (mergedCache == null) return playlist();
         }
         StringBuilder sb = new StringBuilder(header(mergedCache)).append('\n');
-        for (Entry e : entries()) sb.append(e.text());
+        Set<String> hide = hidden;
+        for (Entry e : entries()) if (!hide.contains(e.name)) sb.append(e.text());
         return sb.toString();
     }
 
@@ -391,6 +393,16 @@ public final class MtvaProxy {
 
     private static final Pattern GROUP_ATTR = Pattern.compile("\\s*group-title=\"[^\"]*\"");
     private volatile List<String> order = Collections.emptyList();
+    private volatile Set<String> hidden = Collections.emptySet();
+
+    /** Channel names left out of the player's playlist (still listed in the app). */
+    public void setHidden(java.util.Collection<String> names) {
+        hidden = Collections.unmodifiableSet(new java.util.HashSet<String>(names));
+    }
+
+    public boolean isHidden(String name) {
+        return hidden.contains(name);
+    }
 
     /** Channel names in the order the user wants; channels not listed follow in playlist order. */
     public void setOrder(List<String> names) {
@@ -956,6 +968,8 @@ public final class MtvaProxy {
         }
         String order = System.getProperty("mtva.order", "");
         if (order.length() > 0) proxy.setOrder(java.util.Arrays.asList(order.split(";")));
+        String hide = System.getProperty("mtva.hidden", "");
+        if (hide.length() > 0) proxy.setHidden(java.util.Arrays.asList(hide.split(";")));
         String mode = args.length > 0 ? args[0] : "";
         if (mode.equals("--resolve")) {
             for (Channel c : proxy.byKey.values()) {

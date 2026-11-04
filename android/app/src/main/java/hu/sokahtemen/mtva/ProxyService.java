@@ -82,6 +82,7 @@ public class ProxyService extends Service {
         if (ctx != null) {
             p.setYouTubeChannels(YouTubeStore.load(ctx));
             p.setOrder(YouTubeStore.loadOrder(ctx));
+            p.setHidden(YouTubeStore.loadHidden(ctx));
         }
         for (int attempt = 1; attempt <= START_ATTEMPTS; attempt++) {
             try {

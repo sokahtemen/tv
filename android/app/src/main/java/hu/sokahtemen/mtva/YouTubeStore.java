@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 
 /** The user's YouTube channels ({name, link} pairs) and channel order, kept on the device. */
@@ -67,6 +69,15 @@ final class YouTubeStore {
         StringBuilder sb = new StringBuilder();
         for (String n : names) sb.append(clean(n)).append('\n');
         prefs(context).edit().putString("order", sb.toString()).apply();
+    }
+
+    /** Names of the channels the user hid from the player. */
+    static Set<String> loadHidden(Context context) {
+        return new HashSet<String>(prefs(context).getStringSet("hidden", new HashSet<String>()));
+    }
+
+    static void saveHidden(Context context, Set<String> names) {
+        prefs(context).edit().putStringSet("hidden", new HashSet<String>(names)).apply();
     }
 
     private static String clean(String s) {

@@ -107,7 +107,8 @@ public class MainActivity extends Activity {
         root.addView(actions);
 
         root.addView(heading("Channels"));
-        root.addView(text("Select a channel to move it or test it. The player gets this order, without groups; "
+        root.addView(text("Select a channel to move, hide or test it. The player gets this order, without groups "
+                + "and without hidden channels; "
                 + "refresh the playlist in the player after changes.", 14, Color.rgb(200, 200, 210)));
         channelList = new LinearLayout(this);
         channelList.setOrientation(LinearLayout.VERTICAL);
@@ -204,6 +205,9 @@ public class MainActivity extends Activity {
         items.add("Move to the top");
         items.add("Move to the bottom");
         items.add("Test now");
+        final MtvaProxy px = ProxyService.current();
+        final boolean isHidden = px != null && px.isHidden(e.name);
+        items.add(isHidden ? "Show in the player again" : "Hide from the player");
         if (yt) items.add("Remove this YouTube channel");
         new AlertDialog.Builder(this)
                 .setTitle(e.name)
@@ -221,6 +225,15 @@ public class MainActivity extends Activity {
                             saveCurrentOrder();
                         } else if (which == 3) {
                             test(e);
+                        } else if (which == 4) {
+                            Set<String> h = YouTubeStore.loadHidden(MainActivity.this);
+                            if (isHidden) h.remove(e.name);
+                            else h.add(e.name);
+                            YouTubeStore.saveHidden(MainActivity.this, h);
+                            if (px != null) px.setHidden(h);
+                            renumber();
+                            toast(e.name + (isHidden ? " is shown again." : " is hidden.")
+                                    + " Refresh the playlist in your player.");
                         } else {
                             MtvaProxy p = ProxyService.current();
                             if (p == null) return;
@@ -271,7 +284,10 @@ public class MainActivity extends Activity {
             View v = channelList.getChildAt(i);
             if (!(v.getTag() instanceof MtvaProxy.Entry)) continue;
             MtvaProxy.Entry e = (MtvaProxy.Entry) v.getTag();
-            String label = (i + 1) + ".   " + (youtubeUrls.contains(e.url) ? "▶ " : "") + e.name;
+            boolean hid = p != null && p.isHidden(e.name);
+            String label = (i + 1) + ".   " + (youtubeUrls.contains(e.url) ? "▶ " : "") + e.name
+                    + (hid ? "      (hidden)" : "");
+            ((Button) v).setAlpha(hid ? 0.5f : 1f);
             ((Button) v).setText(v == moving ? "⇅   " + label + "      (▲ ▼ to move, OK when done)" : label);
         }
     }
