@@ -21,6 +21,8 @@ SOURCES = [
     "https://epgshare01.online/epgshare01/epg_ripper_UK1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_SG1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_HU1.xml.gz",
+    "https://epgshare01.online/epgshare01/epg_ripper_IL1.xml.gz",   # i24NEWS English
+    "https://epgshare01.online/epgshare01/epg_ripper_RS1.xml.gz",   # Pannon RTV
     # Free streaming (FAST) channels
     "https://epgshare01.online/epgshare01/epg_ripper_RAKUTEN1.xml.gz",
     "https://epgshare01.online/epgshare01/epg_ripper_PLEX1.xml.gz",

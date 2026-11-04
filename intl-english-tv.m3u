@@ -25,7 +25,7 @@ http://vg-zeefta.akamaized.net/ptnr-yupptv/title-wion/v1/master/611d79b11b77e2f5
 https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8
 #EXTINF:-1 tvg-name="Al Arabiya English" tvg-id="AlArabiyaEnglish.sa@SD" group-title="News",Al Arabiya English
 https://live.alarabiya.net/alarabiapublish/english/playlist_dvr.m3u8
-#EXTINF:-1 tvg-name="i24NEWS English" tvg-id="i24NEWSEnglishWorld.il@SD" group-title="News",i24NEWS English
+#EXTINF:-1 tvg-name="i24NEWS English" tvg-id="i24NEWS.ENGLISH.il" group-title="News",i24NEWS English
 https://i24newsenglish-cdn.encoders.immergo.tv/master.m3u8
 #EXTINF:-1 tvg-name="Bloomberg TV Europe" tvg-id="Bloomberg.HD.uk" group-title="Business",Bloomberg TV Europe
 https://bloomberg.com/media-manifest/streams/eu.m3u8
@@ -61,7 +61,7 @@ http://127.0.0.1:8088/m5.m3u8
 http://127.0.0.1:8088/dunaworld.m3u8
 #EXTINF:-1 tvg-name="Euronews Magyar" tvg-id="Euronews.hu" group-title="Magyar",Euronews Magyar
 https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
-#EXTINF:-1 tvg-name="Pannon RTV" tvg-id="PannonTV.rs@SD" group-title="Magyar",Pannon RTV
+#EXTINF:-1 tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Magyar",Pannon RTV
 https://stream.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-name="Országgyűlés (plenáris)" tvg-id="OrszaggyulesOGYplenaris.hu@SD" group-title="Magyar",Országgyűlés (plenáris)
 https://plenaris.parlament.hu:446/edgelive/smil:mkogyplen.smil/playlist.m3u8
@@ -83,7 +83,7 @@ https://amg01644-amg01644c1-amgplt0343.playout.now3.amagi.tv/ts-eu-w1-n2/playlis
 https://live.france24.com/hls/live/2037218-b/F24_EN_HI_HLS/master_5000.m3u8
 #EXTINF:-1 tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="Backups",Al Jazeera English (alt)
 https://live-hls-apps-aje-v3-fa.getaj.net/AJE/index.m3u8
-#EXTINF:-1 tvg-name="Pannon RTV" tvg-id="PannonTV.rs@SD" group-title="Backups",Pannon RTV (alt)
+#EXTINF:-1 tvg-name="Pannon RTV" tvg-id="Pannon.RTV.rs" group-title="Backups",Pannon RTV (alt)
 https://stream2.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="Backups",BBC News (alt)
 https://vs-cmaf-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/hevc_iptv_mse_v0.mpd
