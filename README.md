@@ -52,3 +52,9 @@ WantedBy=multi-user.target
 
 Then `sudo systemctl enable --now mtva-proxy`. Give the machine a fixed IP in the router so the playlist
 addresses stay valid.
+
+## Checking streams
+
+**Actions → Check streams → Run workflow** tests every channel in the playlist (and any extra URLs you
+enter) the way a player does. It runs from a US server, so Europe-only channels can show as failed even
+though they play at home.

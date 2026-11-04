@@ -13,6 +13,8 @@ https://tv-trtworld.medya.trt.com.tr/master.m3u8
 https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/master.m3u8
 #EXTINF:-1 tvg-name="France 24 English" tvg-id="FRANCE.24.HD.uk" group-title="News",France 24 English
 https://live.france24.com/hls/live/2037218/F24_EN_HI_HLS/master_5000.m3u8
+#EXTINF:-1 tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="News",BBC News
+https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8
 #EXTINF:-1 tvg-name="Al Jazeera English" tvg-id="Al.Jazeera.HD.uk" group-title="News",Al Jazeera English
 https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8
 #EXTINF:-1 tvg-name="Euronews English" tvg-id="Euronews.uk" group-title="News",Euronews English
@@ -70,7 +72,7 @@ https://stream.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-name="Országgyűlés (plenáris)" tvg-id="OrszaggyulesOGYplenaris.hu@SD" group-title="Magyar",Országgyűlés (plenáris)
 https://plenaris.parlament.hu:446/edgelive/smil:mkogyplen.smil/playlist.m3u8
 #EXTINF:-1 tvg-name="Kapos TV" tvg-id="KaposTV.hu@SD" group-title="Magyar",Kapos TV
-https://cloudfront63.lexanetwork.com:1344/relay01/livestream004.sdp/playlist.m3u8
+https://cloudfront44.lexanetwork.com:1344/relay01/broadcast004.sdp/playlist.m3u8
 #EXTINF:-1 tvg-name="TelePaks" tvg-id="Telepaks.hu" group-title="Magyar",TelePaks
 https://cloudfront44.lexanetwork.com:1344/relay02/livestream004.sdp/playlist.m3u8
 #EXTINF:-1 tvg-name="Bajai TV" tvg-id="BajaiTV.hu@SD" group-title="Magyar",Bajai TV
@@ -92,4 +94,6 @@ https://live-hls-apps-aje-v3-fa.getaj.net/AJE/index.m3u8
 #EXTINF:-1 tvg-name="Pannon RTV" tvg-id="PannonTV.rs@SD" group-title="Backups",Pannon RTV (alt)
 https://stream2.nmih.hu:4102/live.m3u8
 #EXTINF:-1 tvg-name="Kapos TV" tvg-id="KaposTV.hu@SD" group-title="Backups",Kapos TV (alt)
-https://cloudfront44.lexanetwork.com:1344/relay01/broadcast004.sdp/playlist.m3u8
+https://cloudfront63.lexanetwork.com:1344/relay01/livestream004.sdp/playlist.m3u8
+#EXTINF:-1 tvg-name="BBC News" tvg-id="BBC.NEWS.HD.uk" group-title="Backups",BBC News (alt)
+https://vs-cmaf-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/hevc_iptv_mse_v0.mpd
