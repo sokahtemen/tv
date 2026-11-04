@@ -80,3 +80,9 @@ Proxy app passes such streams through with the header added:
 
 The app looks up the live stream on YouTube's page, as YouTube's own player does, and reuses it for 30 minutes.
 If YouTube changes its page this can stop working until the app is updated.
+
+### Channel order (free, on the device)
+
+In the app, select a channel → *Move* (then ▲ ▼ and OK), *Move to the top/bottom*, or *Reset order*.
+`http://127.0.0.1:8088/all.m3u` lists the channels in that order, as one list without groups.
+Refresh the playlist in the player afterwards (and keep the player's sorting on "playlist order").

@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -23,7 +24,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The app screen, made for the remote: every action is a button reached with the arrow keys.
@@ -44,6 +48,7 @@ public class MainActivity extends Activity {
     private LinearLayout channelList;
     private String version = "";
     private String shownChannels = "";
+    private Button moving;          // the row being moved with the arrow keys, if any
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +86,29 @@ public class MainActivity extends Activity {
                 toast("Proxy restarting…");
             }
         });
+        Button reset = button("Reset order");
+        reset.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Put all channels back in the original playlist order?")
+                        .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int w) {
+                                saveOrder(new ArrayList<String>());
+                                toast("Order reset. Refresh the playlist in your player.");
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
         actions.addView(add);
         actions.addView(restart);
+        actions.addView(reset);
         root.addView(actions);
 
-        root.addView(heading("Channels  (select one to test it)"));
+        root.addView(heading("Channels"));
+        root.addView(text("Select a channel to move it or test it. The player gets this order, without groups; "
+                + "refresh the playlist in the player after changes.", 14, Color.rgb(200, 200, 210)));
         channelList = new LinearLayout(this);
         channelList.setOrientation(LinearLayout.VERTICAL);
         root.addView(channelList);
@@ -118,49 +141,158 @@ public class MainActivity extends Activity {
         status.setText(ProxyService.status);
         events.setText(ProxyService.recentLog());
         MtvaProxy p = ProxyService.current();
-        if (p == null) return;
-        List<MtvaProxy.Channel> channels = p.channels();
+        if (p == null || moving != null) return; // don't rebuild the list while a row is being moved
+        List<MtvaProxy.Entry> entries = p.entries();
         StringBuilder sig = new StringBuilder();
-        for (MtvaProxy.Channel c : channels) sig.append(c.key).append(c.name).append('|');
+        for (MtvaProxy.Entry e : entries) sig.append(e.name).append('|');
         if (!sig.toString().equals(shownChannels)) { // rebuild only when the list changed (keeps focus)
             shownChannels = sig.toString();
-            showChannels(channels);
+            showChannels(p, entries);
         }
     }
 
-    private void showChannels(List<MtvaProxy.Channel> channels) {
+    private void showChannels(MtvaProxy p, List<MtvaProxy.Entry> entries) {
+        Set<String> youtubeUrls = new HashSet<String>();
+        for (MtvaProxy.Channel c : p.channels()) {
+            if (c.isYouTube()) youtubeUrls.add("http://127.0.0.1:" + MtvaProxy.PORT + "/" + c.key + ".m3u8");
+        }
+        View focused = getCurrentFocus();
+        String focusedName = focused != null && focused.getTag() instanceof MtvaProxy.Entry
+                ? ((MtvaProxy.Entry) focused.getTag()).name : null;
         channelList.removeAllViews();
-        for (final MtvaProxy.Channel c : channels) {
-            Button b = button((c.isYouTube() ? "▶  YouTube:  " : "") + c.name);
+        if (entries.isEmpty()) {
+            channelList.addView(text("Loading the playlist…", 15, Color.rgb(200, 200, 210)));
+            return;
+        }
+        for (final MtvaProxy.Entry e : entries) {
+            final boolean yt = youtubeUrls.contains(e.url);
+            final Button b = button("");
+            b.setTag(e);
             b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    showChannelDialog(c);
+                    if (moving == b) {
+                        finishMove();
+                    } else if (moving == null) {
+                        showChannelDialog(b, e, yt);
+                    }
+                }
+            });
+            b.setOnKeyListener(new View.OnKeyListener() {
+                public boolean onKey(View v, int code, KeyEvent ev) {
+                    if (moving != b) return false;
+                    if (ev.getAction() != KeyEvent.ACTION_DOWN) return code == KeyEvent.KEYCODE_DPAD_UP
+                            || code == KeyEvent.KEYCODE_DPAD_DOWN || code == KeyEvent.KEYCODE_BACK;
+                    if (code == KeyEvent.KEYCODE_DPAD_UP) return step(b, -1);
+                    if (code == KeyEvent.KEYCODE_DPAD_DOWN) return step(b, 1);
+                    if (code == KeyEvent.KEYCODE_BACK) {
+                        finishMove();
+                        return true;
+                    }
+                    return code == KeyEvent.KEYCODE_DPAD_LEFT || code == KeyEvent.KEYCODE_DPAD_RIGHT;
                 }
             });
             channelList.addView(b, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52)));
+            if (e.name.equals(focusedName)) b.requestFocus();
         }
+        renumber();
     }
 
-    private void showChannelDialog(final MtvaProxy.Channel c) {
-        String[] items = c.isYouTube()
-                ? new String[] {"Test now", "Remove this channel"}
-                : new String[] {"Test now"};
+    private void showChannelDialog(final Button row, final MtvaProxy.Entry e, final boolean yt) {
+        List<String> items = new ArrayList<String>();
+        items.add("Move  (then ▲ ▼ on the remote, OK when done)");
+        items.add("Move to the top");
+        items.add("Move to the bottom");
+        items.add("Test now");
+        if (yt) items.add("Remove this YouTube channel");
         new AlertDialog.Builder(this)
-                .setTitle(c.name + (c.isYouTube() ? "\n" + c.link() : ""))
-                .setItems(items, new DialogInterface.OnClickListener() {
+                .setTitle(e.name)
+                .setItems(items.toArray(new String[0]), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface d, int which) {
                         if (which == 0) {
-                            test(c);
+                            moving = row;
+                            renumber();
+                            row.requestFocus();
+                        } else if (which == 1 || which == 2) {
+                            channelList.removeView(row);
+                            channelList.addView(row, which == 1 ? 0 : channelList.getChildCount());
+                            row.requestFocus();
+                            renumber();
+                            saveCurrentOrder();
+                        } else if (which == 3) {
+                            test(e);
                         } else {
-                            YouTubeStore.remove(MainActivity.this, c.link());
+                            MtvaProxy p = ProxyService.current();
+                            if (p == null) return;
+                            for (MtvaProxy.Channel c : p.channels()) {
+                                if (c.isYouTube() && e.url.endsWith("/" + c.key + ".m3u8")) {
+                                    YouTubeStore.remove(MainActivity.this, c.link());
+                                }
+                            }
                             ProxyService.reloadChannels(MainActivity.this);
-                            toast(c.name + " removed");
+                            toast(e.name + " removed");
                         }
                     }
                 })
                 .setNegativeButton("Close", null)
                 .show();
+    }
+
+    /** Moves the row one place up (-1) or down (+1) and keeps the remote's focus on it. */
+    private boolean step(Button row, int dir) {
+        int i = channelList.indexOfChild(row);
+        int j = i + dir;
+        if (j < 0 || j >= channelList.getChildCount()) return true;
+        channelList.removeView(row);
+        channelList.addView(row, j);
+        row.requestFocus();
+        renumber();
+        return true;
+    }
+
+    private void finishMove() {
+        Button row = moving;
+        moving = null;
+        renumber();
+        saveCurrentOrder();
+        if (row != null) row.requestFocus();
+    }
+
+    /** Row labels: position, name, and a marker on the row being moved. */
+    private void renumber() {
+        MtvaProxy p = ProxyService.current();
+        Set<String> youtubeUrls = new HashSet<String>();
+        if (p != null) {
+            for (MtvaProxy.Channel c : p.channels()) {
+                if (c.isYouTube()) youtubeUrls.add("http://127.0.0.1:" + MtvaProxy.PORT + "/" + c.key + ".m3u8");
+            }
+        }
+        for (int i = 0; i < channelList.getChildCount(); i++) {
+            View v = channelList.getChildAt(i);
+            if (!(v.getTag() instanceof MtvaProxy.Entry)) continue;
+            MtvaProxy.Entry e = (MtvaProxy.Entry) v.getTag();
+            String label = (i + 1) + ".   " + (youtubeUrls.contains(e.url) ? "▶ " : "") + e.name;
+            ((Button) v).setText(v == moving ? "⇅   " + label + "      (▲ ▼ to move, OK when done)" : label);
+        }
+    }
+
+    private void saveCurrentOrder() {
+        List<String> names = new ArrayList<String>();
+        for (int i = 0; i < channelList.getChildCount(); i++) {
+            View v = channelList.getChildAt(i);
+            if (v.getTag() instanceof MtvaProxy.Entry) names.add(((MtvaProxy.Entry) v.getTag()).name);
+        }
+        saveOrder(names);
+    }
+
+    private void saveOrder(List<String> names) {
+        YouTubeStore.saveOrder(this, names);
+        MtvaProxy p = ProxyService.current();
+        if (p != null) p.setOrder(names);
+        StringBuilder sig = new StringBuilder();
+        if (p != null) for (MtvaProxy.Entry e : p.entries()) sig.append(e.name).append('|');
+        if (names.isEmpty()) shownChannels = ""; // reset: rebuild in the original order
+        else shownChannels = sig.toString();
     }
 
     private void showAddDialog() {
@@ -210,25 +342,28 @@ public class MainActivity extends Activity {
         MtvaProxy p = ProxyService.current();
         if (p != null) {
             for (MtvaProxy.Channel c : p.channels()) {
-                if (c.isYouTube() && c.link().equals(normalized)) test(c);
+                if (!c.isYouTube() || !c.link().equals(normalized)) continue;
+                for (MtvaProxy.Entry e : p.entries()) {
+                    if (e.url.endsWith("/" + c.key + ".m3u8")) test(e);
+                }
             }
         }
     }
 
-    /** Looks the stream up in the background and shows the result. */
-    private void test(final MtvaProxy.Channel c) {
+    /** Checks the channel's stream in the background and shows the result. */
+    private void test(final MtvaProxy.Entry e) {
         final MtvaProxy p = ProxyService.current();
         if (p == null) {
             toast("The proxy isn't running yet");
             return;
         }
-        toast("Testing " + c.name + "…");
+        toast("Testing " + e.name + "…");
         new Thread(new Runnable() {
             public void run() {
-                final String result = p.test(c.key);
+                final String result = p.testEntry(e);
                 handler.post(new Runnable() {
                     public void run() {
-                        if (!isFinishing()) toast(c.name + ": " + result);
+                        if (!isFinishing()) toast(e.name + ": " + result);
                     }
                 });
             }

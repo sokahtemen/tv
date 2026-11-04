@@ -358,30 +358,144 @@ public final class MtvaProxy {
             String body = getText(MERGED, null);
             if (!body.startsWith("#EXTM3U")) throw new IOException("not a playlist");
             mergedCache = body;
-            return body + youtubeEntries();
         } catch (IOException e) {
             log.line("full playlist download failed: " + e.getMessage());
-            String cached = mergedCache;
-            return cached != null ? cached + youtubeEntries() : playlist();
+            if (mergedCache == null) return playlist();
+        }
+        StringBuilder sb = new StringBuilder(header(mergedCache)).append('\n');
+        for (Entry e : entries()) sb.append(e.text());
+        return sb.toString();
+    }
+
+    // ---------------------------------------------------------------- full playlist, in the user's order
+
+    /** One channel of the full playlist. */
+    public static final class Entry {
+        public final String name, url;
+        final String info;               // the #EXTINF line, without group
+        final List<String> options;      // extra # lines (e.g. #EXTVLCOPT)
+
+        Entry(String name, String info, List<String> options, String url) {
+            this.name = name;
+            this.info = info;
+            this.options = options;
+            this.url = url;
+        }
+
+        String text() {
+            StringBuilder sb = new StringBuilder(info).append('\n');
+            for (String o : options) sb.append(o).append('\n');
+            return sb.append(url).append('\n').toString();
         }
     }
 
-    /** The user's YouTube channels as playlist entries, added to the full playlist. */
-    private String youtubeEntries() {
-        StringBuilder sb = new StringBuilder();
+    private static final Pattern GROUP_ATTR = Pattern.compile("\\s*group-title=\"[^\"]*\"");
+    private volatile List<String> order = Collections.emptyList();
+
+    /** Channel names in the order the user wants; channels not listed follow in playlist order. */
+    public void setOrder(List<String> names) {
+        order = Collections.unmodifiableList(new ArrayList<String>(names));
+    }
+
+    /** Downloads the full playlist in the background if it isn't loaded yet (for the app screen). */
+    public void loadPlaylistAsync() {
+        if (mergedCache != null) return;
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                mergedPlaylist();
+            }
+        }, "mtva-playlist");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    /** All channels (GitHub playlist + the user's YouTube channels), in the user's order, ungrouped. */
+    public List<Entry> entries() {
+        List<Entry> all = new ArrayList<Entry>();
+        String cached = mergedCache;
+        if (cached != null) all.addAll(parse(cached));
         for (Channel c : byKey.values()) {
             if (!c.youtube) continue;
-            sb.append("#EXTINF:-1 tvg-name=\"").append(c.name).append("\" group-title=\"YouTube\",").append(c.name)
-                    .append("\nhttp://127.0.0.1:").append(PORT).append('/').append(c.key).append(".m3u8\n");
+            all.add(new Entry(c.name, "#EXTINF:-1 tvg-name=\"" + c.name + "\"," + c.name,
+                    Collections.<String>emptyList(), "http://127.0.0.1:" + PORT + "/" + c.key + ".m3u8"));
         }
-        return sb.length() == 0 ? "" : "\n" + sb;
+        Map<String, Entry> byName = new LinkedHashMap<String, Entry>();
+        for (Entry e : all) if (!byName.containsKey(e.name)) byName.put(e.name, e);
+        List<Entry> out = new ArrayList<Entry>();
+        for (String n : order) {
+            Entry e = byName.remove(n);
+            if (e != null) out.add(e);
+        }
+        out.addAll(byName.values());
+        return out;
+    }
+
+    private static String header(String playlist) {
+        int nl = playlist.indexOf('\n');
+        String first = (nl < 0 ? playlist : playlist.substring(0, nl)).trim();
+        return first.startsWith("#EXTM3U") ? first : "#EXTM3U";
+    }
+
+    static List<Entry> parse(String playlist) {
+        List<Entry> out = new ArrayList<Entry>();
+        String info = null;
+        List<String> opts = new ArrayList<String>();
+        for (String raw : playlist.split("\r?\n")) {
+            String line = raw.trim();
+            if (line.length() == 0 || line.startsWith("#EXTM3U")) continue;
+            if (line.startsWith("#EXTINF")) {
+                info = GROUP_ATTR.matcher(line).replaceAll("");
+                opts = new ArrayList<String>();
+            } else if (line.startsWith("#")) {
+                if (info != null) opts.add(line);
+            } else if (info != null) {
+                int comma = info.lastIndexOf(',');
+                String name = comma >= 0 ? info.substring(comma + 1).trim() : line;
+                out.add(new Entry(name, info, opts, line));
+                info = null;
+            }
+        }
+        return out;
+    }
+
+    /** Checks that a channel's stream answers with a playlist right now (through this proxy if local). */
+    public String testEntry(Entry e) {
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(e.url).openConnection();
+            c.setConnectTimeout(10000);
+            c.setReadTimeout(30000);
+            c.setRequestProperty("User-Agent", UA);
+            try {
+                int code = c.getResponseCode();
+                if (code >= 400) {
+                    InputStream err = c.getErrorStream();
+                    String msg = err == null ? "" : new String(readAll(err), "UTF-8").trim();
+                    return "Not available (HTTP " + code + ")" + (msg.length() > 0 && msg.length() < 200 ? ": " + msg : "");
+                }
+                byte[] head = new byte[7];
+                InputStream in = c.getInputStream();
+                int n = 0, r;
+                while (n < 7 && (r = in.read(head, n, 7 - n)) != -1) n += r;
+                if (n < 7 || !new String(head, "UTF-8").equals("#EXTM3U")) return "Answers, but not with a stream playlist";
+            } finally {
+                c.disconnect();
+            }
+            for (Channel ch : byKey.values()) {
+                if (ch.youtube && e.url.endsWith("/" + ch.key + ".m3u8") && ch.liveTitle.length() > 0) {
+                    return "Live now: " + ch.liveTitle;
+                }
+            }
+            return "OK, the stream is available";
+        } catch (IOException ex) {
+            return "Not available: " + ex.getMessage();
+        }
     }
 
     private String playlist() {
         StringBuilder sb = new StringBuilder("#EXTM3U\n");
         for (Channel c : byKey.values()) {
             sb.append("#EXTINF:-1 tvg-name=\"").append(c.name).append("\" tvg-id=\"").append(c.tvgId)
-                    .append("\" group-title=\"").append(c.group).append("\",").append(c.name).append('\n')
+                    .append("\",").append(c.name).append('\n')
                     .append("http://127.0.0.1:").append(PORT).append('/').append(c.key).append(".m3u8\n");
         }
         return sb.toString();
@@ -840,6 +954,8 @@ public final class MtvaProxy {
             for (String e : yt.split(";")) entries.add(e.split("\\|", 2));
             proxy.setYouTubeChannels(entries);
         }
+        String order = System.getProperty("mtva.order", "");
+        if (order.length() > 0) proxy.setOrder(java.util.Arrays.asList(order.split(";")));
         String mode = args.length > 0 ? args[0] : "";
         if (mode.equals("--resolve")) {
             for (Channel c : proxy.byKey.values()) {

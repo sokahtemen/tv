@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The user's YouTube channels ({name, link} pairs), kept on the device. */
+/** The user's YouTube channels ({name, link} pairs) and channel order, kept on the device. */
 final class YouTubeStore {
     private static final String PREFS = "channels";
     private static final String KEY = "youtube";
@@ -52,6 +52,21 @@ final class YouTubeStore {
             if (!n.equals(normalizedLink)) keep.add(e);
         }
         save(context, keep);
+    }
+
+    /** Channel names in the user's order (one per line). */
+    static List<String> loadOrder(Context context) {
+        List<String> out = new ArrayList<String>();
+        for (String n : prefs(context).getString("order", "").split("\n")) {
+            if (n.length() > 0) out.add(n);
+        }
+        return out;
+    }
+
+    static void saveOrder(Context context, List<String> names) {
+        StringBuilder sb = new StringBuilder();
+        for (String n : names) sb.append(clean(n)).append('\n');
+        prefs(context).edit().putString("order", sb.toString()).apply();
     }
 
     private static String clean(String s) {

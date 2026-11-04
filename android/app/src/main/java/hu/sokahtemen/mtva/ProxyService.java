@@ -79,7 +79,10 @@ public class ProxyService extends Service {
         synchronized (ProxyService.class) {
             ctx = appContext;
         }
-        if (ctx != null) p.setYouTubeChannels(YouTubeStore.load(ctx));
+        if (ctx != null) {
+            p.setYouTubeChannels(YouTubeStore.load(ctx));
+            p.setOrder(YouTubeStore.loadOrder(ctx));
+        }
         for (int attempt = 1; attempt <= START_ATTEMPTS; attempt++) {
             try {
                 p.start();
@@ -92,6 +95,7 @@ public class ProxyService extends Service {
                     starter = null;
                 }
                 status = "Running on http://127.0.0.1:" + MtvaProxy.PORT;
+                p.loadPlaylistAsync();
                 return;
             } catch (IOException e) {
                 status = "Waiting for port " + MtvaProxy.PORT + " (" + e.getMessage() + ")…";
