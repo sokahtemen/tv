@@ -61,3 +61,6 @@ though they play at home.
 
 **Actions → Long playback test** plays one Hungarian public channel through the MTVA proxy for a set
 time (default 45 minutes) and reports any interruption.
+
+**Actions → Find streams on a web page** searches TV station pages for stream addresses (.m3u8,
+YouTube, embedded players), to help add new channels.

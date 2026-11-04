@@ -1,0 +1,18 @@
+name: Find streams on a web page
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "TV station page(s) to search for stream addresses (space-separated)"
+        required: true
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Search pages
+        env:
+          FIND_URLS: ${{ inputs.urls }}
+        run: python3 find_streams.py
