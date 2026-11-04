@@ -71,7 +71,7 @@ def maxstream_guide(src):
     seen = set()
     for day in data.get("data") or []:
         items = [m for m in day.get("metadata") or [] if m.get("parentId") == vid]
-        if items:  # times are UTC ("...Z")
+        if items:
             print(f"     maxstream {day.get('date')}: {items[0]['startTime']} .. {items[-1]['endTime']}"
                   f" ({len(items)} programmes)")
         for m in items:
@@ -79,7 +79,9 @@ def maxstream_guide(src):
             if not start or not stop or start in seen:
                 continue
             seen.add(start)
-            fmt = lambda t: re.sub(r"[-:T]", "", t.rstrip("Z"))[:14] + " +0000"
+            # The "Z" is wrong: the times are Jakarta local time (each day's list runs from midnight to
+            # midnight on that clock; iptv-org's grabber reads them the same way)
+            fmt = lambda t: re.sub(r"[-:T]", "", t.rstrip("Z"))[:14] + " +0700"
             p = ET.SubElement(tv, "programme", start=fmt(start), stop=fmt(stop), channel=cid)
             ET.SubElement(p, "title", lang="en").text = m.get("tvProgram") or ""
             if m.get("description"):
