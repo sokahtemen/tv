@@ -38,10 +38,12 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir out && mv guide.xml.gz out/ && cd out
+          mkdir out && python3 build_webos.py out/webos.m3u
+          gunzip -c guide.xml.gz > out/guide.xml   # for TV apps that can't read .gz
+          mv guide.xml.gz out/ && cd out
           git init -q -b epg
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add guide.xml.gz
+          git add guide.xml.gz guide.xml webos.m3u
           git commit -qm "EPG $(date -u +%F)"
           git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" epg
