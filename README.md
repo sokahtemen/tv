@@ -101,3 +101,9 @@ Refresh the playlist in the player afterwards (and keep the player's sorting on 
 
 The app also saves the same playlist as `Download/tv.m3u` on the device after every change, for players
 that load local files.
+
+## TVs without the TV Hub app (LG webOS, Samsung, …)
+
+`https://raw.githubusercontent.com/sokahtemen/tv/epg/webos.m3u` is the same playlist without the six
+MTVA channels (they only play through the app), rebuilt with the guide every 6 hours. It links the
+guide uncompressed (`guide.xml`), since some TV apps can't read `.gz`.
