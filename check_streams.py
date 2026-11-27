@@ -52,6 +52,35 @@ def check(name, url):
         return f"FAIL {name}: {e}"
 
 
+def speed_test(url, segments=8):
+    """Downloads a media playlist's newest segments: playback needs download time < video time."""
+    import time
+    try:
+        final, body = get(url)
+        text = body.decode("utf-8", "replace")
+        if "#EXT-X-STREAM-INF" in text:  # master: take the first variant
+            final, body = get(urllib.parse.urljoin(final, [l for l in text.splitlines() if l and not l.startswith("#")][0]))
+            text = body.decode("utf-8", "replace")
+        segs, dur = [], None
+        for l in text.splitlines():
+            if l.startswith("#EXTINF:"):
+                dur = float(l[8:].split(",")[0])
+            elif l and not l.startswith("#") and dur is not None:
+                segs.append((urllib.parse.urljoin(final, l), dur)); dur = None
+        total_b = total_t = total_d = 0
+        for seg, d in segs[-segments:]:
+            t0 = time.time()
+            req = urllib.request.Request(seg, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                n = len(r.read())
+            total_t += time.time() - t0; total_b += n; total_d += d
+        print(f"SPEED {url}: {len(segs[-segments:])} segments, {total_d:.0f} s of video, {total_b / 1e6:.1f} MB "
+              f"({total_b * 8 / total_d / 1e6:.1f} Mbit/s needed) downloaded in {total_t:.1f} s "
+              f"({total_b * 8 / total_t / 1e6:.1f} Mbit/s) -> {total_d / total_t:.1f}x real time\n")
+    except Exception as e:
+        print(f"SPEED {url}: {e}\n")
+
+
 def check_logos(lines):
     """CHECK_LOGOS=1: checks that every tvg-logo address returns an image."""
     import time
@@ -92,6 +121,8 @@ def main():
             print(f"== {final}\n{body[:int(os.environ.get("CHECK_SHOW_MAX", "4000"))].decode('utf-8', 'replace')}\n")
         except Exception as e:
             print(f"== {url}: {e}\n")
+    for url in os.environ.get("CHECK_SPEED", "").split():  # how fast the newest segments download
+        speed_test(url)
     if os.environ.get("CHECK_LOGOS"):
         check_logos(lines)
     for i, line in enumerate(lines):

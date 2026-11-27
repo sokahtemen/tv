@@ -15,6 +15,10 @@ on:
         description: "Optional: print these playlists as the server sends them (space-separated)"
         required: false
         default: ""
+      speed:
+        description: "Optional: measure download speed of these streams (space-separated)"
+        required: false
+        default: ""
       playlist:
         description: "Optional: playlist file in the repo to check instead of the main one"
         required: false
@@ -30,6 +34,7 @@ jobs:
           CHECK_URLS: ${{ inputs.urls }}
           CHECK_PLAYLIST: ${{ inputs.playlist }}
           CHECK_SHOW: ${{ inputs.show }}
+          CHECK_SPEED: ${{ inputs.speed }}
           CHECK_SHOW_MAX: "300000"
           CHECK_LOGOS: ${{ inputs.logos && '1' || '' }}
         run: python3 check_streams.py
