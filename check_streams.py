@@ -74,6 +74,16 @@ def speed_test(url, segments=8):
             with urllib.request.urlopen(req, timeout=30) as r:
                 n = len(r.read())
             total_t += time.time() - t0; total_b += n; total_d += d
+        from concurrent.futures import ThreadPoolExecutor
+        def dl(seg):
+            req = urllib.request.Request(seg[0], headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return len(r.read())
+        t0 = time.time()
+        with ThreadPoolExecutor(4) as pool:
+            pb = sum(pool.map(dl, segs[-segments:]))
+        pt = time.time() - t0
+        print(f"SPEED {url}: 4 at a time: {pb * 8 / pt / 1e6:.1f} Mbit/s -> {total_d / pt:.1f}x real time")
         print(f"SPEED {url}: {len(segs[-segments:])} segments, {total_d:.0f} s of video, {total_b / 1e6:.1f} MB "
               f"({total_b * 8 / total_d / 1e6:.1f} Mbit/s needed) downloaded in {total_t:.1f} s "
               f"({total_b * 8 / total_t / 1e6:.1f} Mbit/s) -> {total_d / total_t:.1f}x real time\n")
