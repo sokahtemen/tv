@@ -78,7 +78,8 @@ Adding `&res=720,480` to such an address keeps only those picture heights in the
 
 Adding `&fast=1` makes the app download the next video segments ahead, 4 at a time. KCTV uses this: its
 server is slow per connection (about 12 Mbit/s for a 10–15 Mbit/s stream), but 4 connections together
-reach about 45 Mbit/s.
+reach about 45 Mbit/s. TVRI World uses it too: one connection gets about 1.5 Mbit/s, less than its
+720p needs (1.7), while 4 together get 9–10 Mbit/s.
 
 No XMLTV guide has TVRI World, Balaton TV or Kapos TV, so the guide workflow builds theirs from other
 schedules: the maxstream.tv schedule (TVRI World), port.hu (Balaton TV) and Kapos TV's own weekly

@@ -4,7 +4,7 @@ https://masterpl.hls.nhkworld.jp/hls/w/live/smarttv.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/CGTN.svg/960px-CGTN.svg.png" tvg-name="CGTN" tvg-id="CGTN.sg" group-title="News",CGTN
 https://english-livebkali.cgtn.com/live/encgtn.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/TVRIWorld.png/960px-TVRIWorld.png" tvg-name="TVRI World" tvg-id="TVRIWorld.id@SD" group-title="News",TVRI World
-http://127.0.0.1:8088/p/_?u=https%3A%2F%2Fott-balancer.tvri.go.id%2Flive%2Feds%2FTVRIWorld%2Fhls%2FTVRIWorld.m3u8&res=720,480
+http://127.0.0.1:8088/p/_?u=https%3A%2F%2Fott-balancer.tvri.go.id%2Flive%2Feds%2FTVRIWorld%2Fhls%2FTVRIWorld.m3u8&res=720,480&fast=1
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Asu5pE9.png" tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="News",Arirang TV
 http://amdlive-ch01.ctnd.com.edgesuite.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/p02AEOF.png" tvg-name="KCTV (North Korea)" tvg-id="KoreanCentralTelevision.kp@HD" group-title="News",KCTV (North Korea)
