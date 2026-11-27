@@ -7,6 +7,8 @@ https://english-livebkali.cgtn.com/live/encgtn.m3u8
 http://127.0.0.1:8088/p/_?u=https%3A%2F%2Fott-balancer.tvri.go.id%2Flive%2Feds%2FTVRIWorld%2Fhls%2FTVRIWorld.m3u8&res=720,480
 #EXTINF:-1 tvg-logo="https://i.imgur.com/Asu5pE9.png" tvg-name="Arirang TV" tvg-id="Arirang.TV.HD.uk" group-title="News",Arirang TV
 http://amdlive-ch01.ctnd.com.edgesuite.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/p02AEOF.png" tvg-name="KCTV (North Korea)" tvg-id="KoreanCentralTelevision.kp@HD" group-title="News",KCTV (North Korea)
+https://stream.intchoson.com/kctv/index.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/TRT_World.svg/960px-TRT_World.svg.png" tvg-name="TRT World" tvg-id="TRT.World.HD.uk" group-title="News",TRT World
 https://tv-trtworld.medya.trt.com.tr/master.m3u8
 #EXTINF:-1 tvg-logo="https://i.imgur.com/8MRNFb9.png" tvg-name="DW English" tvg-id="Deutsche.Welle.(English).sg" group-title="News",DW English
