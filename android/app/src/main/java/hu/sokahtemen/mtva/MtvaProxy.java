@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -43,6 +46,8 @@ import java.util.regex.Pattern;
  * Other streams that only need a Referer header (some local TV stations) can be played through
  * it too: http://127.0.0.1:8088/p/_?u=<stream URL>&ref=<player page URL>, both URL-encoded.
  * Adding &res=720,480 keeps only those picture heights in the stream's quality list (ref is optional then).
+ * Adding &fast=1 downloads the next video segments ahead, several at once: for servers that are slow per
+ * connection (e.g. KCTV), where the player alone, fetching one segment at a time, keeps buffering.
  *
  * Plain Java with no Android APIs, so it also runs and is tested on a desktop JVM.
  */
@@ -68,6 +73,7 @@ public final class MtvaProxy {
         final boolean youtube;
         final long cacheMs;              // how long a looked-up address is reused
         volatile String liveTitle = "";  // YouTube: title of the live stream last found
+        boolean fast;                    // download segments ahead in parallel (&fast=1)
 
         // Last lookup, guarded by this
         private String streamUrl;
@@ -101,6 +107,17 @@ public final class MtvaProxy {
 
         /** Any other stream played through the proxy (e.g. to limit its qualities with &res=). */
         static final Channel PASS = new Channel("_", "Stream", "", "", null, "", false, STREAM_CACHE_MS);
+
+        /** A plain stream played through the proxy, optionally with a Referer and/or segments fetched ahead. */
+        static Channel plain(String referer, boolean fast) throws IOException {
+            if (referer == null && !fast) return PASS;
+            Channel c = referer != null ? withReferer(referer) : PASS;
+            if (!fast) return c;
+            Channel f = new Channel("_", c.name + " (fast)", "", "", c.referer, c.linkSuffix + "&fast=1", false,
+                    STREAM_CACHE_MS);
+            f.fast = true;
+            return f;
+        }
 
         /** A YouTube live stream; {@code link} must already be normalized. */
         static Channel youtube(String name, String link) {
@@ -246,6 +263,7 @@ public final class MtvaProxy {
         server = null;
         if (workers != null) workers.shutdown(); // idle threads end; running requests finish
         workers = null;
+        prefetcher.stop();
     }
 
     private void acceptLoop(ServerSocket s, ThreadPoolExecutor w) {
@@ -315,7 +333,8 @@ public final class MtvaProxy {
                 String url = queryParam(query, "u");
                 String ref = queryParam(query, "ref");
                 Channel ch = !key.equals("_") ? byKey.get(key)
-                        : ref != null && ref.matches("(?i)https?://.+") ? Channel.withReferer(ref) : Channel.PASS;
+                        : Channel.plain(ref != null && ref.matches("(?i)https?://.+") ? ref : null,
+                                        "1".equals(queryParam(query, "fast")));
                 if (ch == null) ch = adHoc.get(key);
                 if (ch == null || url == null || !url.matches("(?i)https?://.+")) {
                     sendText(out, 400, "text/plain", "Bad request\n", head);
@@ -539,6 +558,17 @@ public final class MtvaProxy {
     /** @param keepHeights if not null, a quality list keeps only variants with these picture heights */
     private boolean forward(OutputStream out, Channel ch, String url, boolean head, boolean mayFail,
                             Set<Integer> keepHeights) throws IOException {
+        if (ch.fast && !head) {
+            byte[] ahead = prefetcher.take(url);
+            if (ahead != null) {
+                String h = "HTTP/1.1 200 OK\r\nContent-Type: video/mp2t\r\nContent-Length: " + ahead.length
+                        + "\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n";
+                out.write(h.getBytes("UTF-8"));
+                out.write(ahead);
+                out.flush();
+                return true;
+            }
+        }
         HttpURLConnection c = open(url, ch.referer);
         int code;
         try {
@@ -568,6 +598,7 @@ public final class MtvaProxy {
                 String text = new String(readAll(body), "UTF-8");
                 drained = true;
                 if (keepHeights != null) text = keepVariants(text, keepHeights);
+                if (ch.fast) prefetcher.schedule(c.getURL(), text, ch.referer);
                 sendText(out, 200, "application/vnd.apple.mpegurl", rewrite(text, c.getURL(), ch), head);
             } else {
                 long len = c.getContentLengthLong();
@@ -586,6 +617,85 @@ public final class MtvaProxy {
         } finally {
             if (drained) closeQuietly(raw); // connection goes back to the keep-alive pool
             else c.disconnect();           // partly read (player left): drop it
+        }
+    }
+
+    private final Prefetcher prefetcher = new Prefetcher();
+
+    /**
+     * Downloads the segments of a live media playlist ahead, a few at once, and keeps the newest ones in
+     * memory until the player asks for them. Bounded: at most AHEAD segments are kept.
+     */
+    final class Prefetcher {
+        static final int PARALLEL = 4, AHEAD = 8;
+        private ExecutorService pool;                 // created on first use, guarded by this
+        private final LinkedHashMap<String, Future<byte[]>> segments = new LinkedHashMap<String, Future<byte[]>>();
+
+        synchronized void schedule(URL base, String playlist, final String referer) {
+            if (!playlist.contains("#EXTINF")) return; // a master playlist: nothing to fetch yet
+            List<String> urls = new ArrayList<String>();
+            for (String line : playlist.split("\r?\n")) {
+                String t = line.trim();
+                if (t.length() > 0 && !t.startsWith("#")) {
+                    try {
+                        urls.add(new URL(base, t).toString());
+                    } catch (IOException e) {
+                        // skip a line that isn't a URL
+                    }
+                }
+            }
+            if (pool == null) {
+                pool = Executors.newFixedThreadPool(PARALLEL, new ThreadFactory() {
+                    private final AtomicInteger n = new AtomicInteger();
+                    public Thread newThread(Runnable r) {
+                        Thread t = new Thread(r, "mtva-ahead-" + n.incrementAndGet());
+                        t.setDaemon(true);
+                        return t;
+                    }
+                });
+            }
+            // The newest segments (the player plays near the live edge), oldest first
+            for (final String u : urls.subList(Math.max(0, urls.size() - AHEAD), urls.size())) {
+                if (segments.containsKey(u)) continue;
+                segments.put(u, pool.submit(new java.util.concurrent.Callable<byte[]>() {
+                    public byte[] call() throws IOException {
+                        HttpURLConnection c = open(u, referer);
+                        try {
+                            if (c.getResponseCode() >= 400) throw new IOException("HTTP " + c.getResponseCode());
+                            return readAll(c.getInputStream());
+                        } finally {
+                            c.disconnect();
+                        }
+                    }
+                }));
+            }
+            while (segments.size() > AHEAD) { // forget the oldest
+                java.util.Iterator<Future<byte[]>> it = segments.values().iterator();
+                it.next().cancel(true);
+                it.remove();
+            }
+        }
+
+        /** The segment's bytes if it was fetched (waits for a download in progress); null to fetch normally. */
+        byte[] take(String url) {
+            Future<byte[]> f;
+            synchronized (this) {
+                f = segments.remove(url);
+            }
+            if (f == null) return null;
+            try {
+                return f.get(30, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                f.cancel(true);
+                return null;
+            }
+        }
+
+        synchronized void stop() {
+            for (Future<byte[]> f : segments.values()) f.cancel(true);
+            segments.clear();
+            if (pool != null) pool.shutdownNow();
+            pool = null;
         }
     }
 

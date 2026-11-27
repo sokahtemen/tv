@@ -76,6 +76,10 @@ Hub app passes such streams through with the header added:
 Adding `&res=720,480` to such an address keeps only those picture heights in the stream's quality list
 (`ref` is optional). TVRI World uses this, so the player can't pick its 240p, 360p or 1080p versions.
 
+Adding `&fast=1` makes the app download the next video segments ahead, 4 at a time. KCTV uses this: its
+server is slow per connection (about 12 Mbit/s for a 10–15 Mbit/s stream), but 4 connections together
+reach about 45 Mbit/s.
+
 No XMLTV guide has TVRI World, Balaton TV or Kapos TV, so the guide workflow builds theirs from other
 schedules: the maxstream.tv schedule (TVRI World), port.hu (Balaton TV) and Kapos TV's own weekly
 programme page. No schedule could be found for Budapest Európa TV, Oxygen Music, Al Arabiya English or
